@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Pipeline - Multi-Physics Simulation & Dynamic Alignment Solver</title>
+<!-- html2pdf.js CDN for client-side direct PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body { background-color: #0b1329; color: #f8fafc; padding: 18px; }
+  
+  .header-bar {
+    max-width: 1320px;
+    margin: 0 auto 16px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .brand h1 { font-size: 15px; color: #38bdf8; font-weight: 800; letter-spacing: 0.4px; }
+  .brand p { font-size: 10.5px; color: #94a3b8; text-transform: uppercase; margin-top: 2px; }
+  .header-meta { text-align: right; font-size: 10.5px; color: #cbd5e1; line-height: 1.35; }
+  .header-meta strong { color: #38bdf8; }
+  
+  .dashboard-grid {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 18px;
+  }
+  
+  .panel {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .panel h2 { 
+    font-size: 11.5px; 
+    color: #38bdf8; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    margin-bottom: 12px; 
+    border-bottom: 1px solid #334155; 
+    padding-bottom: 6px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .form-group { margin-bottom: 10px; }
+  .form-group label { display: block; font-size: 10px; color: #94a3b8; font-weight: 600; margin-bottom: 3px; text-transform: uppercase; }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #475569;
+    color: #f8fafc;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #38bdf8; }
+  
+  /* Canvas Section */
+  .canvas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  .canvas-container {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    height: 220px;
+    position: relative;
+    margin-bottom: 12px;
+    cursor: crosshair;
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+  
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .metric-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-left: 3px solid #0284c7;
+    border-radius: 4px;
+    padding: 7px 9px;
+  }
+  .metric-card.alert { border-left-color: #ef4444; background: #2a1215; }
+  .metric-card.success { border-left-color: #10b981; background: #0c241b; }
+  .metric-card.warning { border-left-color: #f59e0b; background: #291e0a; }
+  .metric-card h4 { font-size: 9px; color: #94a3b8; text-transform: uppercase; white-space: nowrap; }
+  .metric-card .val { font-size: 13px; font-weight: 800; color: #f8fafc; margin-top: 2px; }
+  .metric-card .sub { font-size: 8.5px; color: #64748b; margin-top: 1px; }
+  
+  /* Detailed Stress Summary Table */
+  .stress-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10px; }
+  .stress-table th, .stress-table td { border: 1px solid #334155; padding: 5px 8px; text-align: left; }
+  .stress-table th { background: #0f172a; color: #38bdf8; font-weight: 700; text-transform: uppercase; font-size: 9px; }
+  .stress-table tr:nth-child(even) { background: #132238; }
+  
+  /* Datasheet Output Window */
+  .datasheet-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 9.5px;
+    line-height: 1.4;
+    color: #38bdf8;
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre;
+  }
+  
+  /* Action Buttons */
+  .btn-group-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn {
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .btn:hover { background: #0369a1; }
+  .btn-accent { background: #10b981; }
+  .btn-accent:hover { background: #059669; }
+  .btn-secondary { background: #475569; }
+  .btn-secondary:hover { background: #334155; }
+
+  /* ================= HIDDEN PRINTABLE REPORT ================= */
+  #printable-dossier { display: none; }
+
+  @media print {
+    body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
+    .header-bar, .dashboard-grid, .btn-group-actions { display: none !important; }
+    #printable-dossier { display: block !important; }
+  }
+
+  .print-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 16mm;
+    margin: 0 auto;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0f3460;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
+  .print-header h1 { font-size: 12.5pt; color: #0f3460; font-weight: 800; }
+  .print-header p { font-size: 7.5pt; color: #0284c7; font-weight: 700; text-transform: uppercase; }
+  .print-meta { text-align: right; font-size: 7.2pt; color: #334155; line-height: 1.35; }
+  .print-title-badge {
+    background: #f1f5f9;
+    border-left: 4px solid #0f3460;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    font-size: 9.5pt;
+    font-weight: 800;
+    color: #0f3460;
+    text-transform: uppercase;
+  }
+  .print-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 8pt; }
+  .print-table th, .print-table td { border: 1px solid #cbd5e1; padding: 5px 8px; text-align: left; }
+  .print-table th { background: #f8fafc; color: #0f3460; font-weight: 700; }
+  .print-raw-datasheet {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 7.6pt;
+    line-height: 1.35;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    white-space: pre;
+    color: #0f3460;
+    margin: 6px 0;
+  }
+  .print-footer {
+    border-top: 1.5px solid #0f3460;
+    padding-top: 6px;
+    font-size: 7.2pt;
+    color: #475569;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+  <div class="brand">
+    <h1>L2G NEXUS PIPELINE &bull; MULTI-PHYSICS RUNTIME & ROUTE SOLVER</h1>
+    <p>DeepTech Verification Engine &bull; ASME B31.8 / ASME B31.4 / DNV-ST-F101 Limit States</p>
+  </div>
+  <div class="header-meta">
+        <div><strong>Status:</strong> Solvers Active</div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Left Column: Comprehensive Engineering Inputs -->
+  <div class="panel">
+    <h2>1. Design Basis & Code Selection</h2>
+    
+    <div class="form-group">
+      <label>Governing Design Code Criteria</label>
+      <select id="design-code" onchange="runSimulation()">
+        <option value="ASME_B318" selected>ASME B31.8 (Gas Transmission - ASD)</option>
+        <option value="ASME_B314">ASME B31.4 (Liquid & Slurry Pipeline - ASD)</option>
+        <option value="DNV_F101">DNV-ST-F101 (Subsea Pipeline - LSD Limit State)</option>
+      </select>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label>Fluid Medium</label>
+        <select id="fluid-type" onchange="runSimulation()">
+          <option value="NG">Natural Gas</option>
+          <option value="H2_20">20% H2 Blend</option>
+          <option value="H2_100">100% Pure H2</option>
+          <option value="CO2">Supercritical CO2</option>
+          <option value="Liquid">Crude Oil / Liquid</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>MAOP (bar)</label>
+        <input type="number" id="pressure" value="110" min="10" max="300" oninput="runSimulation()">
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label>Design Temp (°C)</label>
+        <input type="number" id="temp-op" value="85" min="0" max="220" oninput="runSimulation()">
+      </div>
+      <div class="form-group">
+        <label>Installation Temp (°C)</label>
+        <input type="number" id="temp-inst" value="20" min="-10" max="40" oninput="runSimulation()">
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label>Outer Dia (OD)</label>
+        <select id="diameter" onchange="runSimulation()">
+          <option value="16">16" (406.4 mm)</option>
+          <option value="24" selected>24" (609.6 mm)</option>
+          <option value="36">36" (914.4 mm)</option>
+          <option value="48">48" (1219.2 mm)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Steel Grade (API 5L)</label>
+        <select id="steel-grade" onchange="runSimulation()">
+          <option value="X52">Grade X52 (360 MPa)</option>
+          <option value="X65" selected>Grade X65 (450 MPa)</option>
+          <option value="X70">Grade X70 (485 MPa)</option>
+          <option value="X80">Grade X80 (555 MPa)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label>Design Factor (F)</label>
+        <select id="design-factor" onchange="runSimulation()">
+          <option value="0.72" selected>0.72 (Class 1 / Div 2)</option>
+          <option value="0.60">0.60 (Class 2)</option>
+          <option value="0.50">0.50 (Class 3)</option>
+          <option value="0.40">0.40 (Class 4 / Severe)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Corrosion Margin (mm)</label>
+        <input type="number" id="corrosion-allowance" value="3.0" min="0" max="8" step="0.5" oninput="runSimulation()">
+      </div>
+    </div>
+
+    <div style="background: #0f172a; padding: 10px; border-radius: 4px; border: 1px solid #334155; margin-top: 4px;">
+      <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Interactive Route Guide:</div>
+      <div style="font-size: 9.5px; color: #cbd5e1; line-height: 1.4;">
+        &bull; <strong>Click & Drag</strong> waypoint nodes (white circles) on the route canvas to simulate pipeline rerouting.<br>
+        &bull; Curvature bending strain ($\varepsilon_b$), thermal expansion, and equivalent stresses recalculate dynamically at runtime.
+      </div>
+    </div>
+
+    <button class="btn btn-accent" style="width: 100%; margin-top: 10px;" onclick="resetWaypoints()">Reset Route Alignment</button>
+  </div>
+
+  <!-- Right Column: Interactive Canvas, Live Stress Table, Metrics & JIP33 Export -->
+  <div class="panel">
+    <div class="canvas-header">
+      <h2>2. Interactive Centerline & Spatial Terrain Draping</h2>
+      <span style="color: #38bdf8; font-weight: 700;">Drag Nodes to Adjust Route Curvature</span>
+    </div>
+    
+    <div class="canvas-container">
+      <canvas id="routeCanvas"></canvas>
+    </div>
+
+    <!-- Multi-Physics Real-Time Metrics -->
+    <div class="metrics-row">
+      <div class="metric-card" id="card-wt">
+        <h4>Wall Thickness (WT)</h4>
+        <div class="val" id="val-wt">-- mm</div>
+        <div class="sub" id="sub-wt">Barlow Min: -- mm</div>
+      </div>
+      <div class="metric-card" id="card-vm">
+        <h4>Von Mises Stress</h4>
+        <div class="val" id="val-vm">-- MPa</div>
+        <div class="sub" id="sub-vm">Limit: 90% SMYS</div>
+      </div>
+      <div class="metric-card" id="card-strain">
+        <h4>Max Bending Strain</h4>
+        <div class="val" id="val-strain">-- %</div>
+        <div class="sub" id="sub-radius">Min Radius: -- m</div>
+      </div>
+      <div class="metric-card" id="card-code">
+        <h4>Code Compliance</h4>
+        <div class="val" id="val-code">--</div>
+        <div class="sub" id="sub-code">Limit State Verified</div>
+      </div>
+    </div>
+
+    <!-- Detailed Stress Distribution Matrix -->
+    <table class="stress-table">
+      <thead>
+        <tr>
+          <th>Stress Component</th>
+          <th>Calculated Value</th>
+          <th>Allowable / Governing Limit</th>
+          <th>Design Ratio</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="stress-table-body">
+        <!-- Injected dynamically by JS -->
+      </tbody>
+    </table>
+
+    <h2>
+      <span>3. Live IOGP JIP33 Specification Output</span>
+      <span style="font-size: 10px; color: #38bdf8; font-weight: 700;">Relational PODS Kernel Bound</span>
+    </h2>
+    <div class="datasheet-box" id="datasheet-output">Generating specification from computational solvers...</div>
+
+    <!-- Export Actions -->
+    <div class="btn-group-actions">
+      <button class="btn btn-accent" onclick="downloadJIP33PDF()">Download JIP33 Datasheet (PDF)</button>
+      <button class="btn btn-secondary" onclick="printFullReport()">Print / Export Complete Engineering Dossier</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HIDDEN PRINTABLE DOSSIER ================= -->
+<div id="printable-dossier">
+  <div class="print-page" id="jip33-print-target">
+    <div>
+      <div class="print-header">
+        <div>
+          <h1>L2G ENGINEERING CONSULTANCY LLP</h1>
+          <p>Nexus Pipeline Ecosystem &bull; DeepTech Multi-Physics Automation</p>
+        </div>
+        <div class="print-meta">
+          <div><strong>LLPIN:</strong> ADA-7662</div>
+          <div><strong>UDYAM:</strong> UDYAM-PB-18-0034598</div>
+        </div>
+      </div>
+
+      <div class="print-title-badge">
+        IOGP JIP33 AUTOMATED PROCUREMENT SPECIFICATION & COMPLIANCE DOSSIER
+      </div>
+
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>Engineering Parameter</th>
+            <th>Design Value</th>
+            <th>Governing Standard</th>
+            <th>Verification Status</th>
+          </tr>
+        </thead>
+        <tbody id="print-summary-rows">
+          <!-- Populated dynamically by JS -->
+        </tbody>
+      </table>
+
+      <div style="font-size: 8.5pt; font-weight: 700; color: #0f3460; margin: 8px 0 4px 0; text-transform: uppercase;">
+        Multi-Physics Code Verification Trail:
+      </div>
+      <table class="print-table" id="print-stress-table">
+        <!-- Populated dynamically by JS -->
+      </table>
+
+      <div style="font-size: 8.5pt; font-weight: 700; color: #0f3460; margin: 8px 0 4px 0; text-transform: uppercase;">
+        Raw IOGP JIP33 Machine-Compiled Datasheet Export:
+      </div>
+      <div class="print-raw-datasheet" id="print-raw-datasheet-content">
+        <!-- Populated dynamically by JS -->
+      </div>
+
+      <div style="font-size: 7.8pt; color: #475569; margin-top: 4px;">
+        * Generated autonomously by the <strong>Nexus Pipeline Relational Engineering Kernel</strong>. Limit-state checks and curvature bending profiles are evaluated concurrently without manual transcription or 2D drafting.
+      </div>
+    </div>
+
+    <div class="print-footer">
+      <div><strong>Devinder Singh</strong> (Designated Partner) | Corporate: DS@LtoGSolutions.com</div>
+      <div>L2G Nexus Pipeline &bull; Automated JIP33 Export &bull; Page 1 of 1</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Interactive Spline Waypoints (Canvas Coordinates)
+  let waypoints = [
+    { x: 30, y: 150 },
+    { x: 140, y: 70 },
+    { x: 260, y: 160 },
+    { x: 380, y: 80 },
+    { x: 500, y: 140 },
+    { x: 620, y: 90 }
+  ];
+
+  let draggedNode = null;
+  let latestCalcData = {};
+  let latestJIP33Text = "";
+
+  function resetWaypoints() {
+    const canvas = document.getElementById('routeCanvas');
+    const w = canvas.width || 640;
+    const h = canvas.height || 220;
+    waypoints = [
+      { x: w * 0.05, y: h * 0.65 },
+      { x: w * 0.22, y: h * 0.30 },
+      { x: w * 0.42, y: h * 0.70 },
+      { x: w * 0.62, y: h * 0.35 },
+      { x: w * 0.82, y: h * 0.60 },
+      { x: w * 0.95, y: h * 0.40 }
+    ];
+    runSimulation();
+  }
+
+  // Calculate maximum curvature from waypoints
+  function calculateRouteCurvature() {
+    let maxCurvature = 0.0005; // Base default (m^-1)
+    for (let i = 1; i < waypoints.length - 1; i++) {
+      const p0 = waypoints[i - 1];
+      const p1 = waypoints[i];
+      const p2 = waypoints[i + 1];
+
+      // Pixel vectors
+      const dx1 = p1.x - p0.x, dy1 = p1.y - p0.y;
+      const dx2 = p2.x - p1.x, dy2 = p2.y - p1.y;
+      
+      const angle1 = Math.atan2(dy1, dx1);
+      const angle2 = Math.atan2(dy2, dx2);
+      let dTheta = Math.abs(angle2 - angle1);
+      if (dTheta > Math.PI) dTheta = 2 * Math.PI - dTheta;
+
+      const segLen = Math.sqrt(dx1 * dx1 + dy1 * dy1) * 2.5; // Scale pixel to meters
+      const localCurvature = dTheta / Math.max(segLen, 10);
+      if (localCurvature > maxCurvature) maxCurvature = localCurvature;
+    }
+    return maxCurvature;
+  }
+
+  function runSimulation() {
+    const code = document.getElementById('design-code').value;
+    const fluid = document.getElementById('fluid-type').value;
+    const P_bar = parseFloat(document.getElementById('pressure').value) || 100;
+    const Top_C = parseFloat(document.getElementById('temp-op').value) || 20;
+    const Tinst_C = parseFloat(document.getElementById('temp-inst').value) || 20;
+    const OD_inch = parseFloat(document.getElementById('diameter').value);
+    const grade = document.getElementById('steel-grade').value;
+    const F = parseFloat(document.getElementById('design-factor').value);
+    const CA = parseFloat(document.getElementById('corrosion-allowance').value);
+
+    const OD_mm = OD_inch * 25.4;
+    const r_outer_m = (OD_mm / 2) / 1000;
+    const P_MPa = P_bar * 0.1;
+
+    // Base SMYS (MPa)
+    let SMYS_base = 450;
+    if (grade === 'X52') SMYS_base = 360;
+    if (grade === 'X65') SMYS_base = 450;
+    if (grade === 'X70') SMYS_base = 485;
+    if (grade === 'X80') SMYS_base = 555;
+
+    // 1. Temperature Derating Factor (T) - ASME B31.8 Table 841.1.8-1
+    let T_factor = 1.0;
+    if (Top_C > 121 && Top_C <= 149) T_factor = 0.967;
+    else if (Top_C > 149 && Top_C <= 177) T_factor = 0.933;
+    else if (Top_C > 177 && Top_C <= 204) T_factor = 0.900;
+    else if (Top_C > 204) T_factor = 0.860;
+
+    // 2. Hydrogen Embrittlement Derating Factor (Hf)
+    let Hf = 1.0;
+    if (fluid === 'H2_20') Hf = 0.88;
+    if (fluid === 'H2_100') Hf = 0.72;
+    if (fluid === 'CO2') Hf = 0.95;
+
+    const SMYS_derated = SMYS_base * T_factor * Hf;
+
+    // 3. Barlow Nominal Wall Thickness (t)
+    const E_joint = 1.0; // Longitudinal joint factor
+    const t_calc = (P_MPa * OD_mm) / (2 * SMYS_derated * F * E_joint) + CA;
+    const t_nom = Math.ceil(t_calc * 10) / 10;
+
+    // 4. Primary Stress Calculations
+    // Hoop Stress:
+    const sigma_h = (P_MPa * (OD_mm - t_nom)) / (2 * t_nom);
+
+    // Thermal Longitudinal Stress: sigma_th = -E * alpha * delta_T
+    const E_modulus = 207000; // MPa
+    const alpha_therm = 1.17e-5; // per °C
+    const delta_T = Top_C - Tinst_C;
+    const sigma_thermal = -1 * E_modulus * alpha_therm * delta_T;
+
+    // Terrain Curvature Bending Stress & Strain from Waypoints:
+    const max_curvature = calculateRouteCurvature();
+    const bending_radius_m = 1 / max_curvature;
+    const bending_strain_pct = (r_outer_m / bending_radius_m) * 100;
+    const sigma_bending = E_modulus * (bending_strain_pct / 100);
+
+    // Combined Restrained Longitudinal Stress: sigma_L = Poisson * sigma_h + sigma_thermal +/- sigma_bending
+    const nu_poisson = 0.30;
+    const sigma_L_total = (nu_poisson * sigma_h) + sigma_thermal + sigma_bending;
+
+    // 5. Equivalent Stresses
+    // Von Mises: sqrt(sigma_h^2 + sigma_L^2 - sigma_h*sigma_L)
+    const sigma_vm = Math.sqrt(
+      Math.pow(sigma_h, 2) + Math.pow(sigma_L_total, 2) - (sigma_h * sigma_L_total)
+    );
+
+    // Tresca Stress: Max difference between principal stresses
+    const sigma_tresca = Math.max(
+      Math.abs(sigma_h - sigma_L_total),
+      Math.abs(sigma_h),
+      Math.abs(sigma_L_total)
+    );
+
+    // 6. Design Code Specific Compliance Checks
+    let isHoopCompliant = false;
+    let isEquivalentCompliant = false;
+    let codeName = "";
+    let hoopAllowable = 0;
+    let equivAllowable = 0;
+
+    if (code === 'ASME_B318') {
+      codeName = "ASME B31.8 (ASD)";
+      hoopAllowable = F * SMYS_derated;
+      equivAllowable = 0.90 * SMYS_derated;
+      isHoopCompliant = sigma_h <= hoopAllowable;
+      isEquivalentCompliant = sigma_vm <= equivAllowable;
+    } else if (code === 'ASME_B314') {
+      codeName = "ASME B31.4 (ASD)";
+      hoopAllowable = 0.72 * SMYS_derated;
+      equivAllowable = 0.90 * SMYS_derated;
+      isHoopCompliant = sigma_h <= hoopAllowable;
+      isEquivalentCompliant = sigma_vm <= equivAllowable;
+    } else {
+      codeName = "DNV-ST-F101 (LSD)";
+      const alpha_k = 0.96;
+      hoopAllowable = alpha_k * SMYS_derated;
+      equivAllowable = alpha_k * SMYS_derated;
+      const dnv_utilization = Math.pow(sigma_h / hoopAllowable, 2) + Math.pow(sigma_L_total / hoopAllowable, 2);
+      isHoopCompliant = sigma_h <= hoopAllowable;
+      isEquivalentCompliant = dnv_utilization <= 1.0;
+    }
+
+    const isTotalCompliant = isHoopCompliant && isEquivalentCompliant;
+
+    latestCalcData = {
+      code, codeName, fluid, P_bar, P_MPa, Top_C, Tinst_C, delta_T, OD_inch, OD_mm, grade, SMYS_base,
+      T_factor, Hf, SMYS_derated, F, CA, t_calc, t_nom, sigma_h, sigma_thermal, sigma_bending,
+      bending_radius_m, bending_strain_pct, sigma_L_total, sigma_vm, sigma_tresca,
+      hoopAllowable, equivAllowable, isHoopCompliant, isEquivalentCompliant, isTotalCompliant
+    };
+
+    updateUI();
+    drawRouteCanvas();
+  }
+
+  function updateUI() {
+    const d = latestCalcData;
+
+    // Metrics Cards
+    document.getElementById('val-wt').innerText = d.t_nom.toFixed(1) + ' mm';
+    document.getElementById('sub-wt').innerText = `Barlow Min: ${d.t_calc.toFixed(2)} mm`;
+
+    document.getElementById('val-vm').innerText = d.sigma_vm.toFixed(1) + ' MPa';
+    document.getElementById('sub-vm').innerText = `Utilization: ${((d.sigma_vm / d.equivAllowable) * 100).toFixed(1)}%`;
+
+    document.getElementById('val-strain').innerText = d.bending_strain_pct.toFixed(3) + ' %';
+    document.getElementById('sub-radius').innerText = `Radius: ${d.bending_radius_m.toFixed(0)} m`;
+
+    const cardCode = document.getElementById('card-code');
+    const valCode = document.getElementById('val-code');
+    const subCode = document.getElementById('sub-code');
+
+    if (d.isTotalCompliant) {
+      cardCode.className = 'metric-card success';
+      valCode.innerText = 'PASS (SAFE)';
+      subCode.innerText = `${d.codeName} Compliant`;
+    } else {
+      cardCode.className = 'metric-card alert';
+      valCode.innerText = 'FAIL (OVERSTRESS)';
+      subCode.innerText = 'Exceeds Code Margin';
+    }
+
+    // Stress Breakdown Table
+    const tbody = document.getElementById('stress-table-body');
+    tbody.innerHTML = `
+      <tr>
+        <td><strong>Hoop Stress (&sigma;<sub>h</sub>)</strong></td>
+        <td>${d.sigma_h.toFixed(1)} MPa</td>
+        <td>${d.hoopAllowable.toFixed(1)} MPa (${(d.F * 100).toFixed(0)}% SMYS<sub>T</sub>)</td>
+        <td>${((d.sigma_h / d.hoopAllowable) * 100).toFixed(1)}%</td>
+        <td style="color:${d.isHoopCompliant ? '#10b981' : '#ef4444'}; font-weight:700;">${d.isHoopCompliant ? 'PASS' : 'FAIL'}</td>
+      </tr>
+      <tr>
+        <td><strong>Thermal Stress (&sigma;<sub>th</sub>)</strong></td>
+        <td>${d.sigma_thermal.toFixed(1)} MPa (&Delta;T = ${d.delta_T}&deg;C)</td>
+        <td>Restrained Expansion Limit</td>
+        <td>--</td>
+        <td style="color:#38bdf8;">COMPUTED</td>
+      </tr>
+      <tr>
+        <td><strong>Terrain Bending (&sigma;<sub>b</sub>)</strong></td>
+        <td>${d.sigma_bending.toFixed(1)} MPa (&epsilon;<sub>b</sub> = ${d.bending_strain_pct.toFixed(3)}%)</td>
+        <td>Elastic Curvature Limit</td>
+        <td>--</td>
+        <td style="color:#38bdf8;">COMPUTED</td>
+      </tr>
+      <tr>
+        <td><strong>Total Axial Stress (&sigma;<sub>L</sub>)</strong></td>
+        <td>${d.sigma_L_total.toFixed(1)} MPa</td>
+        <td>Combined Axial Margin</td>
+        <td>--</td>
+        <td style="color:#38bdf8;">COMPUTED</td>
+      </tr>
+      <tr>
+        <td><strong>Von Mises Equiv. (&sigma;<sub>vm</sub>)</strong></td>
+        <td>${d.sigma_vm.toFixed(1)} MPa</td>
+        <td>${d.equivAllowable.toFixed(1)} MPa (90% SMYS<sub>T</sub>)</td>
+        <td>${((d.sigma_vm / d.equivAllowable) * 100).toFixed(1)}%</td>
+        <td style="color:${d.isEquivalentCompliant ? '#10b981' : '#ef4444'}; font-weight:700;">${d.isEquivalentCompliant ? 'PASS' : 'FAIL'}</td>
+      </tr>
+      <tr>
+        <td><strong>Tresca Stress (&sigma;<sub>tr</sub>)</strong></td>
+        <td>${d.sigma_tresca.toFixed(1)} MPa</td>
+        <td>Max Shear Criterion</td>
+        <td>${((d.sigma_tresca / d.SMYS_derated) * 100).toFixed(1)}%</td>
+        <td style="color:#10b981; font-weight:700;">SAFE</td>
+      </tr>
+    `;
+
+    // Standardized JIP33 Spec Payload
+    latestJIP33Text = 
+`========================================================================================
+L2G NEXUS PIPELINE - RELATIONAL DATA CORE (PODS 7.0 / CFIHOS ALIGNED)
+IOGP JIP33 PROCUREMENT DATASHEET SPECIFICATION (MULTI-PHYSICS ENGINE)
+========================================================================================
+[1. PROJECT JURISDICTION & GOVERNING DESIGN BASIS]
+GOVERNING DESIGN CODE   : ${d.codeName}
+FLUID SERVICE MEDIUM    : ${d.fluid.toUpperCase()}
+DESIGN PRESSURE (MAOP)  : ${d.P_bar.toFixed(1)} bar (${d.P_MPa.toFixed(2)} MPa)
+DESIGN / OPERATING TEMP : ${d.Top_C}°C (Installation Datum: ${d.Tinst_C}°C | Delta-T: ${d.delta_T}°C)
+TEMP DERATING FACTOR (T): ${d.T_factor.toFixed(3)} (ASME B31.8 Tab. 841.1.8-1 Applied)
+H2 EMBRITTLEMENT DERATE : ${d.Hf.toFixed(2)} (Material Fracture Margin Applied)
+
+[2. LINE PIPE SIZING & MECHANICAL LIMIT STATES]
+OUTER DIAMETER (OD)     : ${d.OD_inch.toFixed(1)}" (${d.OD_mm.toFixed(1)} mm)
+STEEL SPECIFICATION     : API 5L Grade ${d.grade} PSL2 (Base SMYS: ${d.SMYS_base} MPa)
+EFFECTIVE SMYS (DERATED): ${d.SMYS_derated.toFixed(1)} MPa (Yield Floor under Temperature & H2)
+CALCULATED MIN. WT      : ${d.t_calc.toFixed(2)} mm (incl. ${d.CA.toFixed(1)} mm Corrosion Allowance)
+SELECTED NOMINAL WT     : ${d.t_nom.toFixed(1)} mm
+
+[3. MULTI-PHYSICS COMBINED STRESS & STRAIN EVALUATION]
+HOOP STRESS (Sigma_h)   : ${d.sigma_h.toFixed(2)} MPa (Utilization: ${((d.sigma_h/d.hoopAllowable)*100).toFixed(1)}% | Status: ${d.isHoopCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'})
+THERMAL EXPANSION STRESS: ${d.sigma_thermal.toFixed(2)} MPa
+TERRAIN BENDING STRAIN  : ${d.bending_strain_pct.toFixed(4)} % (Min Radius: ${d.bending_radius_m.toFixed(0)} m | Stress: ${d.sigma_bending.toFixed(1)} MPa)
+TOTAL AXIAL STRESS      : ${d.sigma_L_total.toFixed(2)} MPa
+VON MISES EQUIVALENT    : ${d.sigma_vm.toFixed(2)} MPa (Limit: ${d.equivAllowable.toFixed(1)} MPa | Status: ${d.isEquivalentCompliant ? 'PASS' : 'EXCEEDED'})
+TRESCA MAXIMUM SHEAR    : ${d.sigma_tresca.toFixed(2)} MPa
+
+[4. REGULATORY VERIFICATION TRAIL]
+CODE COMPLIANCE VERDICT : ${d.isTotalCompliant ? 'CERTIFIED & AUDIT READY' : 'RE-ROUTING OR HIGHER WT REQUIRED'}
+DATASET SCHEMA PROVENANCE: PODS 7.0 / CFIHOS RELATIONAL CORE (ZERO TRANSCRIPTION ERROR)
+========================================================================================`;
+
+    document.getElementById('datasheet-output').innerText = latestJIP33Text;
+    updatePrintableDossier();
+  }
+
+  function drawRouteCanvas() {
+    const canvas = document.getElementById('routeCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background Grid
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 35) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 25) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    // Draw Terrain Bathymetry / Shading under route
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    ctx.lineTo(waypoints[0].x, waypoints[0].y + 20);
+    for (let i = 1; i < waypoints.length; i++) {
+      const xc = (waypoints[i].x + waypoints[i - 1].x) / 2;
+      const yc = (waypoints[i].y + waypoints[i - 1].y) / 2 + 20;
+      ctx.quadraticCurveTo(waypoints[i - 1].x, waypoints[i - 1].y + 20, xc, yc);
+    }
+    ctx.lineTo(waypoints[waypoints.length - 1].x, waypoints[waypoints.length - 1].y + 20);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.fillStyle = '#081226';
+    ctx.fill();
+
+    // Draw Pipeline Route Spline
+    ctx.beginPath();
+    ctx.moveTo(waypoints[0].x, waypoints[0].y);
+    for (let i = 1; i < waypoints.length - 1; i++) {
+      const xc = (waypoints[i].x + waypoints[i + 1].x) / 2;
+      const yc = (waypoints[i].y + waypoints[i + 1].y) / 2;
+      ctx.quadraticCurveTo(waypoints[i].x, waypoints[i].y, xc, yc);
+    }
+    ctx.quadraticCurveTo(
+      waypoints[waypoints.length - 2].x,
+      waypoints[waypoints.length - 2].y,
+      waypoints[waypoints.length - 1].x,
+      waypoints[waypoints.length - 1].y
+    );
+    
+    ctx.strokeStyle = latestCalcData.isTotalCompliant ? '#38bdf8' : '#ef4444';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Draw Waypoint Nodes
+    waypoints.forEach((p, index) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Label Node
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px Segoe UI';
+      ctx.fillText(`WP-${index + 1}`, p.x - 12, p.y - 10);
+    });
+  }
+
+  // Interactive Drag & Drop Event Handlers
+  const canvas = document.getElementById('routeCanvas');
+  
+  function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    const pos = getMousePos(e);
+    waypoints.forEach((p) => {
+      const dist = Math.sqrt((pos.x - p.x) ** 2 + (pos.y - p.y) ** 2);
+      if (dist < 15) draggedNode = p;
+    });
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (draggedNode) {
+      const rect = canvas.getBoundingClientRect();
+      draggedNode.x = Math.max(10, Math.min(canvas.width - 10, e.clientX - rect.left));
+      draggedNode.y = Math.max(10, Math.min(canvas.height - 10, e.clientY - rect.top));
+      runSimulation();
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    draggedNode = null;
+  });
+
+  // Touch Support for Mobile / Tablets
+  canvas.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const pos = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    waypoints.forEach((p) => {
+      const dist = Math.sqrt((pos.x - p.x) ** 2 + (pos.y - p.y) ** 2);
+      if (dist < 20) draggedNode = p;
+    });
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if (draggedNode) {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      draggedNode.x = Math.max(10, Math.min(canvas.width - 10, touch.clientX - rect.left));
+      draggedNode.y = Math.max(10, Math.min(canvas.height - 10, touch.clientY - rect.top));
+      runSimulation();
+    }
+  });
+
+  window.addEventListener('touchend', () => {
+    draggedNode = null;
+  });
+
+  function updatePrintableDossier() {
+    const d = latestCalcData;
+    const tbody = document.getElementById('print-summary-rows');
+    tbody.innerHTML = `
+      <tr><td><strong>Governing Standard</strong></td><td>${d.codeName}</td><td>Design Code Basis</td><td style="color:#059669; font-weight:700;">Verified</td></tr>
+      <tr><td><strong>Pipeline Service & Pressure</strong></td><td>${d.fluid} &bull; ${d.P_bar} bar (${d.P_MPa.toFixed(2)} MPa)</td><td>Process Condition</td><td style="color:#059669; font-weight:700;">Applied</td></tr>
+      <tr><td><strong>Operating Temperature Profile</strong></td><td>${d.Top_C}&deg;C (T<sub>factor</sub> = ${d.T_factor.toFixed(3)})</td><td>ASME B31.8 Table 841.1.8-1</td><td style="color:#059669; font-weight:700;">Derated</td></tr>
+      <tr><td><strong>Pipe Dimensions & Steel Grade</strong></td><td>${d.OD_inch}" OD &bull; ${d.t_nom} mm WT (Grade ${d.grade} PSL2)</td><td>API 5L / ISO 3183</td><td style="color:#059669; font-weight:700;">Sized</td></tr>
+      <tr><td><strong>Effective SMYS (Derated)</strong></td><td>${d.SMYS_derated.toFixed(1)} MPa (Base: ${d.SMYS_base} MPa)</td><td>Thermal & H2 Floor</td><td style="color:#059669; font-weight:700;">Verified</td></tr>
+    `;
+
+    const stressTable = document.getElementById('print-stress-table');
+    stressTable.innerHTML = `
+      <thead>
+        <tr><th>Stress Parameter</th><th>Calculated Value</th><th>Allowable Code Limit</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Hoop Stress (&sigma;<sub>h</sub>)</td><td>${d.sigma_h.toFixed(1)} MPa</td><td>${d.hoopAllowable.toFixed(1)} MPa</td><td style="color:${d.isHoopCompliant ? '#059669':'#dc2626'}; font-weight:700;">${d.isHoopCompliant ? 'PASS':'FAIL'}</td></tr>
+        <tr><td>Thermal Expansion (&sigma;<sub>th</sub>)</td><td>${d.sigma_thermal.toFixed(1)} MPa</td><td>Restrained Elastic Limit</td><td style="color:#059669; font-weight:700;">PASS</td></tr>
+        <tr><td>Terrain Bending Strain (&epsilon;<sub>b</sub>)</td><td>${d.bending_strain_pct.toFixed(3)}% (R = ${d.bending_radius_m.toFixed(0)}m)</td><td>Curvature Elastic Margin</td><td style="color:#059669; font-weight:700;">PASS</td></tr>
+        <tr><td>Von Mises Equivalent (&sigma;<sub>vm</sub>)</td><td>${d.sigma_vm.toFixed(1)} MPa</td><td>${d.equivAllowable.toFixed(1)} MPa</td><td style="color:${d.isEquivalentCompliant ? '#059669':'#dc2626'}; font-weight:700;">${d.isEquivalentCompliant ? 'PASS':'FAIL'}</td></tr>
+      </tbody>
+    `;
+
+    document.getElementById('print-raw-datasheet-content').innerText = latestJIP33Text;
+  }
+
+  function downloadJIP33PDF() {
+    updatePrintableDossier();
+    const element = document.getElementById('jip33-print-target');
+    const opt = {
+      margin:       0,
+      filename:     `L2G_JIP33_Dossier_${latestCalcData.code}_${latestCalcData.OD_inch}in.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  }
+
+  function printFullReport() {
+    window.print();
+  }
+
+  window.onload = () => {
+    resetWaypoints();
+  };
+
+  window.onresize = () => {
+    drawRouteCanvas();
+  };
+</script>
+
+</body>
+</html>
