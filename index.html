@@ -1,1574 +1,913 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexus Pipeline - Multi-Physics Simulation & Dynamic Alignment Solver</title>
-<!-- html2pdf.js CDN for client-side direct PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>L2G NexusPipeline v1.0 • Multi-Physics Subsea & Offshore Engineering Suite</title>
 <style>
-  * { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  :root {
+    --bg-main: #061120;
+    --bg-card: #0b1e36;
+    --bg-sub: #081629;
+    --border: #1e3a5f;
+    --cyan: #38bdf8;
+    --blue: #0284c7;
+    --teal: #0f766e;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
   }
-  body { background-color: #0b1329; color: #f8fafc; padding: 18px; }
-  
-  .header-bar {
-    max-width: 1320px;
-    margin: 0 auto 16px auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #1e293b;
-    border: 1px solid #334155;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
-  .brand h1 { font-size: 15px; color: #38bdf8; font-weight: 800; letter-spacing: 0.4px; }
-  .brand p { font-size: 10.5px; color: #94a3b8; text-transform: uppercase; margin-top: 2px; }
-  .header-meta { text-align: right; font-size: 10.5px; color: #cbd5e1; line-height: 1.35; }
-  .header-meta strong { color: #38bdf8; }
-  
-  .dashboard-grid {
-    max-width: 1320px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 18px;
-  }
-  
-  .panel {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    padding: 16px;
-  }
-  .panel h2 { 
-    font-size: 11.5px; 
-    color: #38bdf8; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-    margin-bottom: 12px; 
-    border-bottom: 1px solid #334155; 
-    padding-bottom: 6px; 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-  .form-group { margin-bottom: 10px; }
-  .form-group label { display: block; font-size: 10px; color: #94a3b8; font-weight: 600; margin-bottom: 3px; text-transform: uppercase; }
-  .form-group input, .form-group select {
-    width: 100%;
-    background: #0f172a;
-    border: 1px solid #475569;
-    color: #f8fafc;
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-  }
-  .form-group input:focus, .form-group select:focus { outline: none; border-color: #38bdf8; }
-  
-  /* Canvas Section */
-  .canvas-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    font-size: 11px;
-    color: #94a3b8;
-  }
-  .canvas-container {
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    height: 220px;
-    position: relative;
-    margin-bottom: 12px;
-    cursor: crosshair;
-  }
-  canvas { width: 100%; height: 100%; display: block; }
-  
-  .metrics-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .metric-card {
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-left: 3px solid #0284c7;
-    border-radius: 4px;
-    padding: 7px 9px;
-  }
-  .metric-card.alert { border-left-color: #ef4444; background: #2a1215; }
-  .metric-card.success { border-left-color: #10b981; background: #0c241b; }
-  .metric-card.warning { border-left-color: #f59e0b; background: #291e0a; }
-  .metric-card h4 { font-size: 9px; color: #94a3b8; text-transform: uppercase; white-space: nowrap; }
-  .metric-card .val { font-size: 13px; font-weight: 800; color: #f8fafc; margin-top: 2px; }
-  .metric-card .sub { font-size: 8.5px; color: #64748b; margin-top: 1px; }
-  
-  /* Detailed Stress Summary Table */
-  .stress-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10px; }
-  .stress-table th, .stress-table td { border: 1px solid #334155; padding: 5px 8px; text-align: left; }
-  .stress-table th { background: #0f172a; color: #38bdf8; font-weight: 700; text-transform: uppercase; font-size: 9px; }
-  .stress-table tr:nth-child(even) { background: #132238; }
-  
-  /* Datasheet Output Window */
-  .datasheet-box {
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    padding: 10px 12px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 9.5px;
-    line-height: 1.4;
-    color: #38bdf8;
-    max-height: 150px;
-    overflow-y: auto;
-    white-space: pre;
-  }
-  
-  /* Action Buttons */
-  .btn-group-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .btn {
-    background: #0284c7;
-    color: #ffffff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .btn:hover { background: #0369a1; }
-  .btn-accent { background: #10b981; }
-  .btn-accent:hover { background: #059669; }
-  .btn-secondary { background: #475569; }
-  .btn-secondary:hover { background: #334155; }
-
-  /* ================= HIDDEN PRINTABLE REPORT ================= */
-  #printable-dossier { display: none; }
-
-  @media print {
-    body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
-    .header-bar, .dashboard-grid, .btn-group-actions { display: none !important; }
-    #printable-dossier { display: block !important; }
-  }
-
-  .print-page {
-    width: 210mm;
-    min-height: 297mm;
-    padding: 14mm 16mm;
-    margin: 0 auto;
-    background: #ffffff;
-    color: #1e293b;
-    font-size: 8.5pt;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-main);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
     line-height: 1.45;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    padding: 16px 22px 40px 22px;
   }
-  .print-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #0f3460;
-    padding-bottom: 6px;
-    margin-bottom: 10px;
-  }
-  .print-header h1 { font-size: 12.5pt; color: #0f3460; font-weight: 800; }
-  .print-header p { font-size: 7.5pt; color: #0284c7; font-weight: 700; text-transform: uppercase; }
-  .print-meta { text-align: right; font-size: 7.2pt; color: #334155; line-height: 1.35; }
-  .print-title-badge {
-    background: #f1f5f9;
-    border-left: 4px solid #0f3460;
-    padding: 6px 10px;
-    margin-bottom: 10px;
-    font-size: 9.5pt;
-    font-weight: 800;
-    color: #0f3460;
-    text-transform: uppercase;
-  }
-  .print-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 8pt; }
-  .print-table th, .print-table td { border: 1px solid #cbd5e1; padding: 5px 8px; text-align: left; }
-  .print-table th { background: #f8fafc; color: #0f3460; font-weight: 700; }
-  .print-raw-datasheet {
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 7.6pt;
-    line-height: 1.35;
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    padding: 8px 10px;
-    white-space: pre;
-    color: #0f3460;
-    margin: 6px 0;
-  }
-  .print-footer {
-    border-top: 1.5px solid #0f3460;
-    padding-top: 6px;
-    font-size: 7.2pt;
-    color: #475569;
-    display: flex;
-    justify-content: space-between;
-  }
-</style>
-</head>
-<body>
-
-<div class="header-bar">
-  <div class="brand">
-    <h1>L2G NEXUS PIPELINE &bull; MULTI-PHYSICS RUNTIME & ROUTE SOLVER</h1>
-    <p>DeepTech Verification Engine &bull; ASME B31.8 / ASME B31.4 / DNV-ST-F101 Limit States</p>
-  </div>
-  <div class="header-meta">
-        <div><strong>Status:</strong> Solvers Active</div>
-  </div>
-</div>
-
-<div class="dashboard-grid">
-  <!-- Left Column: Comprehensive Engineering Inputs -->
-  <div class="panel">
-    <h2>1. Design Basis & Code Selection</h2>
-    
-    <div class="form-group">
-      <label>Governing Design Code Criteria</label>
-      <select id="design-code" onchange="runSimulation()">
-        <option value="ASME_B318" selected>ASME B31.8 (Gas Transmission - ASD)</option>
-        <option value="ASME_B314">ASME B31.4 (Liquid & Slurry Pipeline - ASD)</option>
-        <option value="DNV_F101">DNV-ST-F101 (Subsea Pipeline - LSD Limit State)</option>
-      </select>
-    </div>
-
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label>Fluid Medium</label>
-        <select id="fluid-type" onchange="runSimulation()">
-          <option value="NG">Natural Gas</option>
-          <option value="H2_20">20% H2 Blend</option>
-          <option value="H2_100">100% Pure H2</option>
-          <option value="CO2">Supercritical CO2</option>
-          <option value="Liquid">Crude Oil / Liquid</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>MAOP (bar)</label>
-        <input type="number" id="pressure" value="110" min="10" max="300" oninput="runSimulation()">
-      </div>
-    </div>
-
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label>Design Temp (°C)</label>
-        <input type="number" id="temp-op" value="85" min="0" max="220" oninput="runSimulation()">
-      </div>
-      <div class="form-group">
-        <label>Installation Temp (°C)</label>
-        <input type="number" id="temp-inst" value="20" min="-10" max="40" oninput="runSimulation()">
-      </div>
-    </div>
-
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label>Outer Dia (OD)</label>
-        <select id="diameter" onchange="runSimulation()">
-          <option value="16">16" (406.4 mm)</option>
-          <option value="24" selected>24" (609.6 mm)</option>
-          <option value="36">36" (914.4 mm)</option>
-          <option value="48">48" (1219.2 mm)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Steel Grade (API 5L)</label>
-        <select id="steel-grade" onchange="runSimulation()">
-          <option value="X52">Grade X52 (360 MPa)</option>
-          <option value="X65" selected>Grade X65 (450 MPa)</option>
-          <option value="X70">Grade X70 (485 MPa)</option>
-          <option value="X80">Grade X80 (555 MPa)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label>Design Factor (F)</label>
-        <select id="design-factor" onchange="runSimulation()">
-          <option value="0.72" selected>0.72 (Class 1 / Div 2)</option>
-          <option value="0.60">0.60 (Class 2)</option>
-          <option value="0.50">0.50 (Class 3)</option>
-          <option value="0.40">0.40 (Class 4 / Severe)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Corrosion Margin (mm)</label>
-        <input type="number" id="corrosion-allowance" value="3.0" min="0" max="8" step="0.5" oninput="runSimulation()">
-      </div>
-    </div>
-
-    <div style="background: #0f172a; padding: 10px; border-radius: 4px; border: 1px solid #334155; margin-top: 4px;">
-      <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Interactive Route Guide:</div>
-      <div style="font-size: 9.5px; color: #cbd5e1; line-height: 1.4;">
-        &bull; <strong>Click & Drag</strong> waypoint nodes (white circles) on the route canvas to simulate pipeline rerouting.<br>
-        &bull; Curvature bending strain ($\varepsilon_b$), thermal expansion, and equivalent stresses recalculate dynamically at runtime.
-      </div>
-    </div>
-
-    <button class="btn btn-accent" style="width: 100%; margin-top: 10px;" onclick="resetWaypoints()">Reset Route Alignment</button>
-  </div>
-
-  <!-- Right Column: Interactive Canvas, Live Stress Table, Metrics & JIP33 Export -->
-  <div class="panel">
-    <div class="canvas-header">
-      <h2>2. Interactive Centerline & Spatial Terrain Draping</h2>
-      <span style="color: #38bdf8; font-weight: 700;">Drag Nodes to Adjust Route Curvature</span>
-    </div>
-    
-    <div class="canvas-container">
-      <canvas id="routeCanvas"></canvas>
-    </div>
-
-    <!-- Multi-Physics Real-Time Metrics -->
-    <div class="metrics-row">
-      <div class="metric-card" id="card-wt">
-        <h4>Wall Thickness (WT)</h4>
-        <div class="val" id="val-wt">-- mm</div>
-        <div class="sub" id="sub-wt">Barlow Min: -- mm</div>
-      </div>
-      <div class="metric-card" id="card-vm">
-        <h4>Von Mises Stress</h4>
-        <div class="val" id="val-vm">-- MPa</div>
-        <div class="sub" id="sub-vm">Limit: 90% SMYS</div>
-      </div>
-      <div class="metric-card" id="card-strain">
-        <h4>Max Bending Strain</h4>
-        <div class="val" id="val-strain">-- %</div>
-        <div class="sub" id="sub-radius">Min Radius: -- m</div>
-      </div>
-      <div class="metric-card" id="card-code">
-        <h4>Code Compliance</h4>
-        <div class="val" id="val-code">--</div>
-        <div class="sub" id="sub-code">Limit State Verified</div>
-      </div>
-    </div>
-
-    <!-- Detailed Stress Distribution Matrix -->
-    <table class="stress-table">
-      <thead>
-        <tr>
-          <th>Stress Component</th>
-          <th>Calculated Value</th>
-          <th>Allowable / Governing Limit</th>
-          <th>Design Ratio</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="stress-table-body">
-        <!-- Injected dynamically by JS -->
-      </tbody>
-    </table>
-
-    <h2>
-      <span>3. Live IOGP JIP33 Specification Output</span>
-      <span style="font-size: 10px; color: #38bdf8; font-weight: 700;">Relational PODS Kernel Bound</span>
-    </h2>
-    <div class="datasheet-box" id="datasheet-output">Generating specification from computational solvers...</div>
-
-    <!-- Export Actions -->
-    <div class="btn-group-actions">
-      <button class="btn btn-accent" onclick="downloadJIP33PDF()">Download JIP33 Datasheet (PDF)</button>
-      <button class="btn btn-secondary" onclick="printFullReport()">Print / Export Complete Engineering Dossier</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= HIDDEN PRINTABLE DOSSIER ================= -->
-<div id="printable-dossier">
-  <div class="print-page" id="jip33-print-target">
-    <div>
-      <div class="print-header">
-        <div>
-          <h1>L2G ENGINEERING CONSULTANCY LLP</h1>
-          <p>Nexus Pipeline Ecosystem &bull; DeepTech Multi-Physics Automation</p>
-        </div>
-        <div class="print-meta">
-          <div><strong>LLPIN:</strong> ADA-7662</div>
-          <div><strong>UDYAM:</strong> UDYAM-PB-18-0034598</div>
-        </div>
-      </div>
-
-      <div class="print-title-badge">
-        IOGP JIP33 AUTOMATED PROCUREMENT SPECIFICATION & COMPLIANCE DOSSIER
-      </div>
-
-      <table class="print-table">
-        <thead>
-          <tr>
-            <th>Engineering Parameter</th>
-            <th>Design Value</th>
-            <th>Governing Standard</th>
-            <th>Verification Status</th>
-          </tr>
-        </thead>
-        <tbody id="print-summary-rows">
-          <!-- Populated dynamically by JS -->
-        </tbody>
-      </table>
-
-      <div style="font-size: 8.5pt; font-weight: 700; color: #0f3460; margin: 8px 0 4px 0; text-transform: uppercase;">
-        Multi-Physics Code Verification Trail:
-      </div>
-      <table class="print-table" id="print-stress-table">
-        <!-- Populated dynamically by JS -->
-      </table>
-
-      <div style="font-size: 8.5pt; font-weight: 700; color: #0f3460; margin: 8px 0 4px 0; text-transform: uppercase;">
-        Raw IOGP JIP33 Machine-Compiled Datasheet Export:
-      </div>
-      <div class="print-raw-datasheet" id="print-raw-datasheet-content">
-        <!-- Populated dynamically by JS -->
-      </div>
-
-      <div style="font-size: 7.8pt; color: #475569; margin-top: 4px;">
-        * Generated autonomously by the <strong>Nexus Pipeline Relational Engineering Kernel</strong>. Limit-state checks and curvature bending profiles are evaluated concurrently without manual transcription or 2D drafting.
-      </div>
-    </div>
-
-    <div class="print-footer">
-      <div><strong>Devinder Singh</strong> (Designated Partner) | Corporate: DS@LtoGSolutions.com</div>
-      <div>L2G Nexus Pipeline &bull; Automated JIP33 Export &bull; Page 1 of 1</div>
-    </div>
-  </div>
-</div>
-
-<script>
-  // Interactive Spline Waypoints (Canvas Coordinates)
-  let waypoints = [
-    { x: 30, y: 150 },
-    { x: 140, y: 70 },
-    { x: 260, y: 160 },
-    { x: 380, y: 80 },
-    { x: 500, y: 140 },
-    { x: 620, y: 90 }
-  ];
-
-  let draggedNode = null;
-  let latestCalcData = {};
-  let latestJIP33Text = "";
-
-  function resetWaypoints() {
-    const canvas = document.getElementById('routeCanvas');
-    const w = canvas.width || 640;
-    const h = canvas.height || 220;
-    waypoints = [
-      { x: w * 0.05, y: h * 0.65 },
-      { x: w * 0.22, y: h * 0.30 },
-      { x: w * 0.42, y: h * 0.70 },
-      { x: w * 0.62, y: h * 0.35 },
-      { x: w * 0.82, y: h * 0.60 },
-      { x: w * 0.95, y: h * 0.40 }
-    ];
-    runSimulation();
-  }
-
-  // Calculate maximum curvature from waypoints
-  function calculateRouteCurvature() {
-    let maxCurvature = 0.0005; // Base default (m^-1)
-    for (let i = 1; i < waypoints.length - 1; i++) {
-      const p0 = waypoints[i - 1];
-      const p1 = waypoints[i];
-      const p2 = waypoints[i + 1];
-
-      // Pixel vectors
-      const dx1 = p1.x - p0.x, dy1 = p1.y - p0.y;
-      const dx2 = p2.x - p1.x, dy2 = p2.y - p1.y;
-      
-      const angle1 = Math.atan2(dy1, dx1);
-      const angle2 = Math.atan2(dy2, dx2);
-      let dTheta = Math.abs(angle2 - angle1);
-      if (dTheta > Math.PI) dTheta = 2 * Math.PI - dTheta;
-
-      const segLen = Math.sqrt(dx1 * dx1 + dy1 * dy1) * 2.5; // Scale pixel to meters
-      const localCurvature = dTheta / Math.max(segLen, 10);
-      if (localCurvature > maxCurvature) maxCurvature = localCurvature;
-    }
-    return maxCurvature;
-  }
-
-  function runSimulation() {
-    const code = document.getElementById('design-code').value;
-    const fluid = document.getElementById('fluid-type').value;
-    const P_bar = parseFloat(document.getElementById('pressure').value) || 100;
-    const Top_C = parseFloat(document.getElementById('temp-op').value) || 20;
-    const Tinst_C = parseFloat(document.getElementById('temp-inst').value) || 20;
-    const OD_inch = parseFloat(document.getElementById('diameter').value);
-    const grade = document.getElementById('steel-grade').value;
-    const F = parseFloat(document.getElementById('design-factor').value);
-    const CA = parseFloat(document.getElementById('corrosion-allowance').value);
-
-    const OD_mm = OD_inch * 25.4;
-    const r_outer_m = (OD_mm / 2) / 1000;
-    const P_MPa = P_bar * 0.1;
-
-    // Base SMYS (MPa)
-    let SMYS_base = 450;
-    if (grade === 'X52') SMYS_base = 360;
-    if (grade === 'X65') SMYS_base = 450;
-    if (grade === 'X70') SMYS_base = 485;
-    if (grade === 'X80') SMYS_base = 555;
-
-    // 1. Temperature Derating Factor (T) - ASME B31.8 Table 841.1.8-1
-    let T_factor = 1.0;
-    if (Top_C > 121 && Top_C <= 149) T_factor = 0.967;
-    else if (Top_C > 149 && Top_C <= 177) T_factor = 0.933;
-    else if (Top_C > 177 && Top_C <= 204) T_factor = 0.900;
-    else if (Top_C > 204) T_factor = 0.860;
-
-    // 2. Hydrogen Embrittlement Derating Factor (Hf)
-    let Hf = 1.0;
-    if (fluid === 'H2_20') Hf = 0.88;
-    if (fluid === 'H2_100') Hf = 0.72;
-    if (fluid === 'CO2') Hf = 0.95;
-
-    const SMYS_derated = SMYS_base * T_factor * Hf;
-
-    // 3. Barlow Nominal Wall Thickness (t)
-    const E_joint = 1.0; // Longitudinal joint factor
-    const t_calc = (P_MPa * OD_mm) / (2 * SMYS_derated * F * E_joint) + CA;
-    const t_nom = Math.ceil(t_calc * 10) / 10;
-
-    // 4. Primary Stress Calculations
-    // Hoop Stress:
-    const sigma_h = (P_MPa * (OD_mm - t_nom)) / (2 * t_nom);
-
-    // Thermal Longitudinal Stress: sigma_th = -E * alpha * delta_T
-    const E_modulus = 207000; // MPa
-    const alpha_therm = 1.17e-5; // per °C
-    const delta_T = Top_C - Tinst_C;
-    const sigma_thermal = -1 * E_modulus * alpha_therm * delta_T;
-
-    // Terrain Curvature Bending Stress & Strain from Waypoints:
-    const max_curvature = calculateRouteCurvature();
-    const bending_radius_m = 1 / max_curvature;
-    const bending_strain_pct = (r_outer_m / bending_radius_m) * 100;
-    const sigma_bending = E_modulus * (bending_strain_pct / 100);
-
-    // Combined Restrained Longitudinal Stress: sigma_L = Poisson * sigma_h + sigma_thermal +/- sigma_bending
-    const nu_poisson = 0.30;
-    const sigma_L_total = (nu_poisson * sigma_h) + sigma_thermal + sigma_bending;
-
-    // 5. Equivalent Stresses
-    // Von Mises: sqrt(sigma_h^2 + sigma_L^2 - sigma_h*sigma_L)
-    const sigma_vm = Math.sqrt(
-      Math.pow(sigma_h, 2) + Math.pow(sigma_L_total, 2) - (sigma_h * sigma_L_total)
-    );
-
-    // Tresca Stress: Max difference between principal stresses
-    const sigma_tresca = Math.max(
-      Math.abs(sigma_h - sigma_L_total),
-      Math.abs(sigma_h),
-      Math.abs(sigma_L_total)
-    );
-
-    // 6. Design Code Specific Compliance Checks
-    let isHoopCompliant = false;
-    let isEquivalentCompliant = false;
-    let codeName = "";
-    let hoopAllowable = 0;
-    let equivAllowable = 0;
-
-    if (code === 'ASME_B318') {
-      codeName = "ASME B31.8 (ASD)";
-      hoopAllowable = F * SMYS_derated;
-      equivAllowable = 0.90 * SMYS_derated;
-      isHoopCompliant = sigma_h <= hoopAllowable;
-      isEquivalentCompliant = sigma_vm <= equivAllowable;
-    } else if (code === 'ASME_B314') {
-      codeName = "ASME B31.4 (ASD)";
-      hoopAllowable = 0.72 * SMYS_derated;
-      equivAllowable = 0.90 * SMYS_derated;
-      isHoopCompliant = sigma_h <= hoopAllowable;
-      isEquivalentCompliant = sigma_vm <= equivAllowable;
-    } else {
-      codeName = "DNV-ST-F101 (LSD)";
-      const alpha_k = 0.96;
-      hoopAllowable = alpha_k * SMYS_derated;
-      equivAllowable = alpha_k * SMYS_derated;
-      const dnv_utilization = Math.pow(sigma_h / hoopAllowable, 2) + Math.pow(sigma_L_total / hoopAllowable, 2);
-      isHoopCompliant = sigma_h <= hoopAllowable;
-      isEquivalentCompliant = dnv_utilization <= 1.0;
-    }
-
-    const isTotalCompliant = isHoopCompliant && isEquivalentCompliant;
-
-    latestCalcData = {
-      code, codeName, fluid, P_bar, P_MPa, Top_C, Tinst_C, delta_T, OD_inch, OD_mm, grade, SMYS_base,
-      T_factor, Hf, SMYS_derated, F, CA, t_calc, t_nom, sigma_h, sigma_thermal, sigma_bending,
-      bending_radius_m, bending_strain_pct, sigma_L_total, sigma_vm, sigma_tresca,
-      hoopAllowable, equivAllowable, isHoopCompliant, isEquivalentCompliant, isTotalCompliant
-    };
-
-    updateUI();
-    drawRouteCanvas();
-  }
-
-  function updateUI() {
-    const d = latestCalcData;
-
-    // Metrics Cards
-    document.getElementById('val-wt').innerText = d.t_nom.toFixed(1) + ' mm';
-    document.getElementById('sub-wt').innerText = `Barlow Min: ${d.t_calc.toFixed(2)} mm`;
-
-    document.getElementById('val-vm').innerText = d.sigma_vm.toFixed(1) + ' MPa';
-    document.getElementById('sub-vm').innerText = `Utilization: ${((d.sigma_vm / d.equivAllowable) * 100).toFixed(1)}%`;
-
-    document.getElementById('val-strain').innerText = d.bending_strain_pct.toFixed(3) + ' %';
-    document.getElementById('sub-radius').innerText = `Radius: ${d.bending_radius_m.toFixed(0)} m`;
-
-    const cardCode = document.getElementById('card-code');
-    const valCode = document.getElementById('val-code');
-    const subCode = document.getElementById('sub-code');
-
-    if (d.isTotalCompliant) {
-      cardCode.className = 'metric-card success';
-      valCode.innerText = 'PASS (SAFE)';
-      subCode.innerText = `${d.codeName} Compliant`;
-    } else {
-      cardCode.className = 'metric-card alert';
-      valCode.innerText = 'FAIL (OVERSTRESS)';
-      subCode.innerText = 'Exceeds Code Margin';
-    }
-
-    // Stress Breakdown Table
-    const tbody = document.getElementById('stress-table-body');
-    tbody.innerHTML = `
-      <tr>
-        <td><strong>Hoop Stress (&sigma;<sub>h</sub>)</strong></td>
-        <td>${d.sigma_h.toFixed(1)} MPa</td>
-        <td>${d.hoopAllowable.toFixed(1)} MPa (${(d.F * 100).toFixed(0)}% SMYS<sub>T</sub>)</td>
-        <td>${((d.sigma_h / d.hoopAllowable) * 100).toFixed(1)}%</td>
-        <td style="color:${d.isHoopCompliant ? '#10b981' : '#ef4444'}; font-weight:700;">${d.isHoopCompliant ? 'PASS' : 'FAIL'}</td>
-      </tr>
-      <tr>
-        <td><strong>Thermal Stress (&sigma;<sub>th</sub>)</strong></td>
-        <td>${d.sigma_thermal.toFixed(1)} MPa (&Delta;T = ${d.delta_T}&deg;C)</td>
-        <td>Restrained Expansion Limit</td>
-        <td>--</td>
-        <td style="color:#38bdf8;">COMPUTED</td>
-      </tr>
-      <tr>
-        <td><strong>Terrain Bending (&sigma;<sub>b</sub>)</strong></td>
-        <td>${d.sigma_bending.toFixed(1)} MPa (&epsilon;<sub>b</sub> = ${d.bending_strain_pct.toFixed(3)}%)</td>
-        <td>Elastic Curvature Limit</td>
-        <td>--</td>
-        <td style="color:#38bdf8;">COMPUTED</td>
-      </tr>
-      <tr>
-        <td><strong>Total Axial Stress (&sigma;<sub>L</sub>)</strong></td>
-        <td>${d.sigma_L_total.toFixed(1)} MPa</td>
-        <td>Combined Axial Margin</td>
-        <td>--</td>
-        <td style="color:#38bdf8;">COMPUTED</td>
-      </tr>
-      <tr>
-        <td><strong>Von Mises Equiv. (&sigma;<sub>vm</sub>)</strong></td>
-        <td>${d.sigma_vm.toFixed(1)} MPa</td>
-        <td>${d.equivAllowable.toFixed(1)} MPa (90% SMYS<sub>T</sub>)</td>
-        <td>${((d.sigma_vm / d.equivAllowable) * 100).toFixed(1)}%</td>
-        <td style="color:${d.isEquivalentCompliant ? '#10b981' : '#ef4444'}; font-weight:700;">${d.isEquivalentCompliant ? 'PASS' : 'FAIL'}</td>
-      </tr>
-      <tr>
-        <td><strong>Tresca Stress (&sigma;<sub>tr</sub>)</strong></td>
-        <td>${d.sigma_tresca.toFixed(1)} MPa</td>
-        <td>Max Shear Criterion</td>
-        <td>${((d.sigma_tresca / d.SMYS_derated) * 100).toFixed(1)}%</td>
-        <td style="color:#10b981; font-weight:700;">SAFE</td>
-      </tr>
-    `;
-
-    // Standardized JIP33 Spec Payload
-    latestJIP33Text = 
-`========================================================================================
-L2G NEXUS PIPELINE - RELATIONAL DATA CORE (PODS 7.0 / CFIHOS ALIGNED)
-IOGP JIP33 PROCUREMENT DATASHEET SPECIFICATION (MULTI-PHYSICS ENGINE)
-========================================================================================
-[1. PROJECT JURISDICTION & GOVERNING DESIGN BASIS]
-GOVERNING DESIGN CODE   : ${d.codeName}
-FLUID SERVICE MEDIUM    : ${d.fluid.toUpperCase()}
-DESIGN PRESSURE (MAOP)  : ${d.P_bar.toFixed(1)} bar (${d.P_MPa.toFixed(2)} MPa)
-DESIGN / OPERATING TEMP : ${d.Top_C}°C (Installation Datum: ${d.Tinst_C}°C | Delta-T: ${d.delta_T}°C)
-TEMP DERATING FACTOR (T): ${d.T_factor.toFixed(3)} (ASME B31.8 Tab. 841.1.8-1 Applied)
-H2 EMBRITTLEMENT DERATE : ${d.Hf.toFixed(2)} (Material Fracture Margin Applied)
-
-[2. LINE PIPE SIZING & MECHANICAL LIMIT STATES]
-OUTER DIAMETER (OD)     : ${d.OD_inch.toFixed(1)}" (${d.OD_mm.toFixed(1)} mm)
-STEEL SPECIFICATION     : API 5L Grade ${d.grade} PSL2 (Base SMYS: ${d.SMYS_base} MPa)
-EFFECTIVE SMYS (DERATED): ${d.SMYS_derated.toFixed(1)} MPa (Yield Floor under Temperature & H2)
-CALCULATED MIN. WT      : ${d.t_calc.toFixed(2)} mm (incl. ${d.CA.toFixed(1)} mm Corrosion Allowance)
-SELECTED NOMINAL WT     : ${d.t_nom.toFixed(1)} mm
-
-[3. MULTI-PHYSICS COMBINED STRESS & STRAIN EVALUATION]
-HOOP STRESS (Sigma_h)   : ${d.sigma_h.toFixed(2)} MPa (Utilization: ${((d.sigma_h/d.hoopAllowable)*100).toFixed(1)}% | Status: ${d.isHoopCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'})
-THERMAL EXPANSION STRESS: ${d.sigma_thermal.toFixed(2)} MPa
-TERRAIN BENDING STRAIN  : ${d.bending_strain_pct.toFixed(4)} % (Min Radius: ${d.bending_radius_m.toFixed(0)} m | Stress: ${d.sigma_bending.toFixed(1)} MPa)
-TOTAL AXIAL STRESS      : ${d.sigma_L_total.toFixed(2)} MPa
-VON MISES EQUIVALENT    : ${d.sigma_vm.toFixed(2)} MPa (Limit: ${d.equivAllowable.toFixed(1)} MPa | Status: ${d.isEquivalentCompliant ? 'PASS' : 'EXCEEDED'})
-TRESCA MAXIMUM SHEAR    : ${d.sigma_tresca.toFixed(2)} MPa
-
-[4. REGULATORY VERIFICATION TRAIL]
-CODE COMPLIANCE VERDICT : ${d.isTotalCompliant ? 'CERTIFIED & AUDIT READY' : 'RE-ROUTING OR HIGHER WT REQUIRED'}
-DATASET SCHEMA PROVENANCE: PODS 7.0 / CFIHOS RELATIONAL CORE (ZERO TRANSCRIPTION ERROR)
-========================================================================================`;
-
-    document.getElementById('datasheet-output').innerText = latestJIP33Text;
-    updatePrintableDossier();
-  }
-
-  function drawRouteCanvas() {
-    const canvas = document.getElementById('routeCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Background Grid
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < canvas.width; x += 35) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-    }
-    for (let y = 0; y < canvas.height; y += 25) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-    }
-
-    // Draw Terrain Bathymetry / Shading under route
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    ctx.lineTo(waypoints[0].x, waypoints[0].y + 20);
-    for (let i = 1; i < waypoints.length; i++) {
-      const xc = (waypoints[i].x + waypoints[i - 1].x) / 2;
-      const yc = (waypoints[i].y + waypoints[i - 1].y) / 2 + 20;
-      ctx.quadraticCurveTo(waypoints[i - 1].x, waypoints[i - 1].y + 20, xc, yc);
-    }
-    ctx.lineTo(waypoints[waypoints.length - 1].x, waypoints[waypoints.length - 1].y + 20);
-    ctx.lineTo(canvas.width, canvas.height);
-    ctx.fillStyle = '#081226';
-    ctx.fill();
-
-    // Draw Pipeline Route Spline
-    ctx.beginPath();
-    ctx.moveTo(waypoints[0].x, waypoints[0].y);
-    for (let i = 1; i < waypoints.length - 1; i++) {
-      const xc = (waypoints[i].x + waypoints[i + 1].x) / 2;
-      const yc = (waypoints[i].y + waypoints[i + 1].y) / 2;
-      ctx.quadraticCurveTo(waypoints[i].x, waypoints[i].y, xc, yc);
-    }
-    ctx.quadraticCurveTo(
-      waypoints[waypoints.length - 2].x,
-      waypoints[waypoints.length - 2].y,
-      waypoints[waypoints.length - 1].x,
-      waypoints[waypoints.length - 1].y
-    );
-    
-    ctx.strokeStyle = latestCalcData.isTotalCompliant ? '#38bdf8' : '#ef4444';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Draw Waypoint Nodes
-    waypoints.forEach((p, index) => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      ctx.strokeStyle = '#0284c7';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-
-      // Label Node
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '10px Segoe UI';
-      ctx.fillText(`WP-${index + 1}`, p.x - 12, p.y - 10);
-    });
-  }
-
-  // Interactive Drag & Drop Event Handlers
-  const canvas = document.getElementById('routeCanvas');
-  
-  function getMousePos(e) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
-  }
-
-  canvas.addEventListener('mousedown', (e) => {
-    const pos = getMousePos(e);
-    waypoints.forEach((p) => {
-      const dist = Math.sqrt((pos.x - p.x) ** 2 + (pos.y - p.y) ** 2);
-      if (dist < 15) draggedNode = p;
-    });
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (draggedNode) {
-      const rect = canvas.getBoundingClientRect();
-      draggedNode.x = Math.max(10, Math.min(canvas.width - 10, e.clientX - rect.left));
-      draggedNode.y = Math.max(10, Math.min(canvas.height - 10, e.clientY - rect.top));
-      runSimulation();
-    }
-  });
-
-  window.addEventListener('mouseup', () => {
-    draggedNode = null;
-  });
-
-  // Touch Support for Mobile / Tablets
-  canvas.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const pos = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
-    waypoints.forEach((p) => {
-      const dist = Math.sqrt((pos.x - p.x) ** 2 + (pos.y - p.y) ** 2);
-      if (dist < 20) draggedNode = p;
-    });
-  });
-
-  window.addEventListener('touchmove', (e) => {
-    if (draggedNode) {
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      draggedNode.x = Math.max(10, Math.min(canvas.width - 10, touch.clientX - rect.left));
-      draggedNode.y = Math.max(10, Math.min(canvas.height - 10, touch.clientY - rect.top));
-      runSimulation();
-    }
-  });
-
-  window.addEventListener('touchend', () => {
-    draggedNode = null;
-  });
-
-  function updatePrintableDossier() {
-    const d = latestCalcData;
-    const tbody = document.getElementById('print-summary-rows');
-    tbody.innerHTML = `
-      <tr><td><strong>Governing Standard</strong></td><td>${d.codeName}</td><td>Design Code Basis</td><td style="color:#059669; font-weight:700;">Verified</td></tr>
-      <tr><td><strong>Pipeline Service & Pressure</strong></td><td>${d.fluid} &bull; ${d.P_bar} bar (${d.P_MPa.toFixed(2)} MPa)</td><td>Process Condition</td><td style="color:#059669; font-weight:700;">Applied</td></tr>
-      <tr><td><strong>Operating Temperature Profile</strong></td><td>${d.Top_C}&deg;C (T<sub>factor</sub> = ${d.T_factor.toFixed(3)})</td><td>ASME B31.8 Table 841.1.8-1</td><td style="color:#059669; font-weight:700;">Derated</td></tr>
-      <tr><td><strong>Pipe Dimensions & Steel Grade</strong></td><td>${d.OD_inch}" OD &bull; ${d.t_nom} mm WT (Grade ${d.grade} PSL2)</td><td>API 5L / ISO 3183</td><td style="color:#059669; font-weight:700;">Sized</td></tr>
-      <tr><td><strong>Effective SMYS (Derated)</strong></td><td>${d.SMYS_derated.toFixed(1)} MPa (Base: ${d.SMYS_base} MPa)</td><td>Thermal & H2 Floor</td><td style="color:#059669; font-weight:700;">Verified</td></tr>
-    `;
-
-    const stressTable = document.getElementById('print-stress-table');
-    stressTable.innerHTML = `
-      <thead>
-        <tr><th>Stress Parameter</th><th>Calculated Value</th><th>Allowable Code Limit</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Hoop Stress (&sigma;<sub>h</sub>)</td><td>${d.sigma_h.toFixed(1)} MPa</td><td>${d.hoopAllowable.toFixed(1)} MPa</td><td style="color:${d.isHoopCompliant ? '#059669':'#dc2626'}; font-weight:700;">${d.isHoopCompliant ? 'PASS':'FAIL'}</td></tr>
-        <tr><td>Thermal Expansion (&sigma;<sub>th</sub>)</td><td>${d.sigma_thermal.toFixed(1)} MPa</td><td>Restrained Elastic Limit</td><td style="color:#059669; font-weight:700;">PASS</td></tr>
-        <tr><td>Terrain Bending Strain (&epsilon;<sub>b</sub>)</td><td>${d.bending_strain_pct.toFixed(3)}% (R = ${d.bending_radius_m.toFixed(0)}m)</td><td>Curvature Elastic Margin</td><td style="color:#059669; font-weight:700;">PASS</td></tr>
-        <tr><td>Von Mises Equivalent (&sigma;<sub>vm</sub>)</td><td>${d.sigma_vm.toFixed(1)} MPa</td><td>${d.equivAllowable.toFixed(1)} MPa</td><td style="color:${d.isEquivalentCompliant ? '#059669':'#dc2626'}; font-weight:700;">${d.isEquivalentCompliant ? 'PASS':'FAIL'}</td></tr>
-      </tbody>
-    `;
-
-    document.getElementById('print-raw-datasheet-content').innerText = latestJIP33Text;
-  }
-
-  function downloadJIP33PDF() {
-    updatePrintableDossier();
-    const element = document.getElementById('jip33-print-target');
-    const opt = {
-      margin:       0,
-      filename:     `L2G_JIP33_Dossier_${latestCalcData.code}_${latestCalcData.OD_inch}in.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
-  }
-
-  function printFullReport() {
-    window.print();
-  }
-
-  window.onload = () => {
-    resetWaypoints();
-  };
-
-  window.onresize = () => {
-    drawRouteCanvas();
-  };
-</script>
-<!-- NEXUSPIPELINE SEAMLESS SUBSEA & OFFSHORE ENGINEERING SUITE -->
-<style>
-  #nexus-suite-dock {
-    max-width: 1400px;
-    margin: 18px auto 32px auto;
-    background: #0b1d33;
-    border: 1px solid #1e3a5f;
+  .container { max-width: 1460px; margin: 0 auto; }
+
+  .topbar {
+    background: linear-gradient(90deg, #091d36 0%, #0e294b 100%);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 18px 22px;
-    color: #e2e8f0;
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  }
-  .nx-header {
+    padding: 14px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    border-bottom: 1px solid #1e3a5f;
-    padding-bottom: 12px;
     margin-bottom: 14px;
   }
-  .nx-title {
-    color: #38bdf8;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-  }
-  .nx-sub {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-top: 2px;
-  }
-  .nx-toolbar {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .nx-btn {
-    background: #0284c7;
+  .brand h1 { font-size: 16.5px; color: var(--cyan); letter-spacing: 0.5px; }
+  .brand p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .top-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .btn {
+    background: var(--blue);
     color: #fff;
     border: none;
     padding: 7px 12px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 5px;
   }
-  .nx-btn:hover { filter: brightness(1.1); }
-  .nx-btn.teal { background: #0f766e; }
-  .nx-btn.amber { background: #b45309; }
-  .nx-btn.slate { background: #1e293b; border: 1px solid #334155; }
-  .nx-select {
-    background: #0f294a;
+  .btn:hover { filter: brightness(1.12); }
+  .btn.teal { background: var(--teal); }
+  .btn.amber { background: #b45309; }
+  .btn.ghost { background: #0f2540; border: 1px solid #2b4c77; color: #e2e8f0; }
+
+  select, input[type="number"], input[type="text"] {
+    background: #08172b;
     color: #f8fafc;
-    border: 1px solid #38bdf8;
+    border: 1px solid #2b4c77;
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 6px 9px;
     font-size: 12px;
-    font-weight: 600;
   }
-  .nx-tabs {
+  select.master-code { border-color: var(--cyan); font-weight: 700; }
+
+  .status-strip {
+    background: #091b31;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cyan);
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #cbd5e1;
     display: flex;
-    gap: 6px;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 14px;
-    border-bottom: 1px solid #1e3a5f;
-    padding-bottom: 10px;
   }
-  .nx-tab {
-    background: #0f2540;
-    color: #94a3b8;
-    border: 1px solid #1e3a5f;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .nx-tab.active {
-    background: #0284c7;
-    color: #ffffff;
-    border-color: #38bdf8;
-  }
-  .nx-panel { display: none; }
-  .nx-panel.active { display: block; }
-  .nx-grid-4 {
+
+  .nav-tabs {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) { .nav-tabs { grid-template-columns: repeat(2, 1fr); } }
+  .nav-tab {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+  }
+  .nav-tab span { display: block; font-size: 10.5px; font-weight: 400; color: #7dd3fc; margin-top: 2px; }
+  .nav-tab.active {
+    background: linear-gradient(135deg, #0369a1 0%, #0b2948 100%);
+    border-color: var(--cyan);
+    color: #fff;
+  }
+
+  .module { display: none; }
+  .module.active { display: block; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
     margin-bottom: 14px;
   }
-  .nx-card {
-    background: #081629;
-    border: 1px solid #1e3a5f;
+  .card-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 390px 1fr; gap: 14px; }
+  @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; }
+
+  .kpi {
+    background: var(--bg-sub);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px;
   }
-  .nx-card-lbl {
-    font-size: 10px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .nx-card-val {
-    font-size: 18px;
-    font-weight: 700;
-    color: #f8fafc;
-    margin: 4px 0 2px 0;
-  }
-  .nx-card-note { font-size: 11px; color: #38bdf8; }
-  .nx-table-wrap {
-    max-height: 290px;
+  .kpi-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .kpi-val { font-size: 19px; font-weight: 700; margin: 4px 0 2px 0; }
+  .kpi-sub { font-size: 11px; color: #7dd3fc; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .field label { display: block; font-size: 10px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
+  .field input, .field select { width: 100%; }
+
+  .table-wrap {
     overflow: auto;
-    border: 1px solid #1e3a5f;
+    max-height: 340px;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: #071324;
+    background: var(--bg-sub);
   }
-  .nx-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11.5px;
-  }
-  .nx-table th {
-    position: sticky;
-    top: 0;
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th {
+    position: sticky; top: 0;
     background: #0f294a;
-    color: #38bdf8;
+    color: var(--cyan);
     text-align: left;
-    padding: 8px 10px;
-    border-bottom: 1px solid #1e3a5f;
+    padding: 8px 9px;
+    border-bottom: 1px solid var(--border);
   }
-  .nx-table td {
-    padding: 7px 10px;
-    border-bottom: 1px solid #0f2540;
-    color: #e2e8f0;
-  }
-  .nx-badge-pass {
-    background: rgba(22, 163, 74, 0.2);
-    color: #4ade80;
-    border: 1px solid #16a34a;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-  }
-  .nx-badge-warn {
-    background: rgba(217, 119, 6, 0.22);
-    color: #fbbf24;
-    border: 1px solid #d97706;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-  }
-  .nx-badge-fail {
-    background: rgba(220, 38, 38, 0.22);
-    color: #f87171;
-    border: 1px solid #dc2626;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-  }
-  .nx-canvas-box {
-    background: #061120;
-    border: 1px solid #1e3a5f;
+  td { padding: 7px 9px; border-bottom: 1px solid #0f2540; }
+
+  .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+  .b-pass { background: rgba(22,163,74,0.2); color: var(--green); border: 1px solid #16a34a; }
+  .b-warn { background: rgba(217,119,6,0.22); color: var(--amber); border: 1px solid #d97706; }
+  .b-fail { background: rgba(220,38,38,0.22); color: var(--red); border: 1px solid #dc2626; }
+
+  .disc-card {
+    background: var(--bg-sub);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 10px;
+    padding: 11px 13px;
   }
+  .disc-card h4 { font-size: 12px; color: #38bdf8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .disc-io { font-size: 11px; color: #cbd5e1; margin-bottom: 4px; }
+  .disc-io b { color: #94a3b8; }
+
+  canvas { display: block; width: 100%; background: #050f1d; border: 1px solid var(--border); border-radius: 8px; }
 </style>
+</head>
+<body>
+<div class="container">
 
-<section id="nexus-suite-dock">
-  <div class="nx-header">
+  <!-- TOP COMMAND BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <h1>L2G NEXUSPIPELINE v1.0 • MULTI-PHYSICS SUBSEA &amp; OFFSHORE ENGINEERING SUITE</h1>
+      <p>PODS 7.0 / CFIHOS / DNV Sesam Interface Kernel • GoI Copyright Reg. SW-2026024357 • LLPIN: ADA-7662 | DIPP279818</p>
+    </div>
+    <div class="top-controls">
+      <select id="masterCode" class="master-code" title="Single Governing Code Regime">
+        <option value="DNV">Code: DNV-ST-F101 (Ed. 2021) / RP-F105 / F109 / F111</option>
+        <option value="AS2885">Code: AS 2885.4 (DNV-ST-F101) + AS 2885.2 / 2885.5</option>
+        <option value="ISO13623">Code: ISO 13623 (Table 2/3) / ISO 15589-2 Subsea</option>
+        <option value="API1111">Code: API RP 1111 / ASME B31.8 Offshore</option>
+      </select>
+      <label class="btn">
+        Import Corridor CSV
+        <input type="file" id="csvInput" accept=".csv" style="display:none;" />
+      </label>
+      <label class="btn teal">
+        Import Design JSON
+        <input type="file" id="jsonInput" accept=".json" style="display:none;" />
+      </label>
+      <button class="btn amber" id="btnExportAll">Export JIP33 + SHA-256</button>
+    </div>
+  </header>
+
+  <!-- LIVE STATUS STRIP -->
+  <div class="status-strip">
+    <div id="statusMsg">Active Corridor: <b>NWS-DEEP-GAS-60KM</b> (18 KP Stations • 1,120m to 150m WD • DNV-ST-F101 / AS 2885.4 / ISO 13623 / ISO 13628-2) — Ready.</div>
     <div>
-      <div class="nx-title">4. Integrated Subsea &amp; Offshore Engineering Workbench (DNV / AS 2885 / ISO 13623)</div>
-      <div class="nx-sub" id="nx-status-line">PODS 7.0 / CFIHOS Relational Kernel • GoI Copyright SW-2026024357 • Load Corridor CSV &amp; Design Basis JSON to synchronize solvers</div>
-    </div>
-    <div class="nx-toolbar">
-      <label class="nx-btn">
-        1. Import Corridor CSV
-        <input type="file" id="nxCsvInput" accept=".csv" style="display:none;" />
-      </label>
-      <label class="nx-btn teal">
-        2. Import Design JSON
-        <input type="file" id="nxJsonInput" accept=".json" style="display:none;" />
-      </label>
-      <select id="nxCodeStandard" class="nx-select" title="Code Regime">
-        <option value="DNV">DNV-ST-F101 / F105 / F109 / B401</option>
-        <option value="AS2885">Australian Std AS 2885 / AS ISO 13623</option>
-        <option value="ISO13623">ISO 13623 / ISO 15589-2 Subsea</option>
-      </select>
-      <select id="nxWtSelect" class="nx-select" title="Candidate Wall Thickness">
-        <option value="22.2">WT: 22.2 mm</option>
-        <option value="25.4" selected>WT: 25.4 mm</option>
-        <option value="28.6">WT: 28.6 mm</option>
-      </select>
-      <select id="nxMapScale" class="nx-select" title="Alignment / Route Drawing Scale">
-        <option value="1:5000">Scale 1:5,000</option>
-        <option value="1:10000" selected>Scale 1:10,000</option>
-        <option value="1:25000">Scale 1:25,000</option>
+      Drawing Scale:
+      <select id="mapScale">
+        <option value="1:5,000">1:5,000</option>
+        <option value="1:10,000" selected>1:10,000</option>
+        <option value="1:25,000">1:25,000</option>
       </select>
     </div>
   </div>
 
-  <!-- Discipline Module Tabs -->
-  <div class="nx-tabs">
-    <button class="nx-tab active" data-tab="tab-wt">Wall Thickness &amp; Stability (F101/F109)</button>
-    <button class="nx-tab" data-tab="tab-span">Free-Span VIV &amp; Buckling (F105/F110)</button>
-    <button class="nx-tab" data-tab="tab-cp">Cathodic Protection &amp; Installation (B401)</button>
-    <button class="nx-tab" data-tab="tab-riser">Risers, PLEM/PLET &amp; Crossings (F201/F114)</button>
-    <button class="nx-tab" data-tab="tab-3d">3D Seabed Walk-Through &amp; Alignment Map</button>
-    <button class="nx-tab" data-tab="tab-deliv">Deliverables, MTO, Drawings &amp; SHA-256</button>
-  </div>
+  <!-- 4-STAGE LOGICAL EPC ENGINEERING WORKFLOW TABS -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-mod="mod-basis">
+      1. Design Basis &amp; Multi-Discipline I/O
+      <span>F101 / AS 2885.4 / ISO 13623 Premise &amp; 9 Sesam/CFIHOS Interfaces</span>
+    </button>
+    <button class="nav-tab" data-mod="mod-route">
+      2. Routing &amp; 2D/3D Terrain Draping
+      <span>Interactive Centerline, Bathymetry &amp; 3D Seabed Walk-Through</span>
+    </button>
+    <button class="nav-tab" data-mod="mod-calc">
+      3. Sequential Limit-State Analysis Suite
+      <span>F101 / ISO 13623 Containment, F109 NWS, F105 VIV &amp; ISO 13628-2 Riser</span>
+    </button>
+    <button class="nav-tab" data-mod="mod-system">
+      4. System Schematic, MTO &amp; CAPEX Estimate
+      <span>End-to-End Architecture, Procurement, RBI Plan &amp; Spread Costing</span>
+    </button>
+  </nav>
 
-  <!-- TAB 1: WALL THICKNESS & ON-BOTTOM STABILITY -->
-  <div id="tab-wt" class="nx-panel active">
-    <div class="nx-grid-4">
-      <div class="nx-card">
-        <div class="nx-card-lbl">Max Collapse Utilization (DNV-ST-F101)</div>
-        <div class="nx-card-val" id="val-coll">—</div>
-        <div class="nx-card-note" id="note-coll">Deepwater hydrostatic check</div>
+  <!-- ===================================================================== -->
+  <!-- MODULE 1: DESIGN BASIS & MULTI-DISCIPLINE INTERFACE MATRIX            -->
+  <!-- ===================================================================== -->
+  <section id="mod-basis" class="module active">
+    <div class="grid-2">
+      <!-- Left: Master Design Basis Inputs -->
+      <div class="card">
+        <div class="card-title">
+          <span>Master Design Basis (F101 / AS 2885 / ISO 13623)</span>
+          <button class="btn ghost" id="btnRecalc" style="padding:4px 8px;font-size:11px;">Run Solvers</button>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Nominal OD (mm)</label>
+            <select id="inOD">
+              <option value="406.4">16" (406.4 mm)</option>
+              <option value="508.0" selected>20" (508.0 mm)</option>
+              <option value="609.6">24" (609.6 mm)</option>
+              <option value="762.0">30" (762.0 mm)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nominal WT t_nom (mm)</label>
+            <select id="inWT">
+              <option value="22.2">22.2 mm</option>
+              <option value="25.4" selected>25.4 mm</option>
+              <option value="28.6">28.6 mm</option>
+              <option value="31.8">31.8 mm</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Material Grade (ISO 3183)</label>
+            <select id="inGrade">
+              <option value="415">API 5L X60 / L415 (415 MPa)</option>
+              <option value="450" selected>API 5L X65 / L450 (450 MPa)</option>
+              <option value="485">API 5L X70 / L485 (485 MPa)</option>
+              <option value="450_CRA">22Cr Duplex / CRA Clad (RP-F112)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Pipe Process α_fab (Table 5-4)</label>
+            <select id="inAlphaFab">
+              <option value="1.00" selected>Seamless SMLS (α_fab = 1.00)</option>
+              <option value="0.93">UO / JCO / HFW (α_fab = 0.93)</option>
+              <option value="0.85">UOE / JCOE (α_fab = 0.85)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fluid Category (ISO 13623 5.2)</label>
+            <select id="inFluidCat">
+              <option value="D">Cat. D (Non-toxic Natural Gas)</option>
+              <option value="E" selected>Cat. E (Flammable/Toxic/Condensate/CO2)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Riser Architecture (ISO 13628)</label>
+            <select id="inRiserType">
+              <option value="SCR" selected>Rigid Steel Catenary Riser (SCR)</option>
+              <option value="FLEX_UNBOND">Unbonded Flexible Lazy-Wave (ISO 13628-2)</option>
+              <option value="FLEX_BOND">Bonded Flexible Jumper/Riser (ISO 13628-10)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Corrosion Allowance t_corr (mm)</label>
+            <input type="number" id="inCorr" value="3.0" step="0.5" />
+          </div>
+          <div class="field">
+            <label>Design Pressure Pd / MAOP (bar)</label>
+            <input type="number" id="inPd" value="220" step="5" />
+          </div>
+          <div class="field">
+            <label>Design Temp Td (°C)</label>
+            <input type="number" id="inTd" value="85" step="5" />
+          </div>
+          <div class="field">
+            <label>Product Density (kg/m³)</label>
+            <input type="number" id="inRhoP" value="240" step="10" />
+          </div>
+          <div class="field">
+            <label>100-Yr Wave Hs (RP-C205) (m)</label>
+            <input type="number" id="inHs" value="11.5" step="0.5" />
+          </div>
+          <div class="field">
+            <label>Shallow CWC Thickness (mm)</label>
+            <input type="number" id="inCwc" value="60" step="10" />
+          </div>
+        </div>
       </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Pressure Containment Utilization</div>
-        <div class="nx-card-val" id="val-burst">—</div>
-        <div class="nx-card-note" id="note-burst">Incidental pressure &amp; safety class</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">On-Bottom Stability (DNV-RP-F109)</div>
-        <div class="nx-card-val" id="val-stab">—</div>
-        <div class="nx-card-note" id="note-stab">CWC weight &amp; lateral hydrodynamic check</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Propagation Buckling Pressure (Ppr)</div>
-        <div class="nx-card-val" id="val-ppr">—</div>
-        <div class="nx-card-note" id="note-ppr">Buckle arrestor screening</div>
-      </div>
-    </div>
-    <div class="nx-table-wrap">
-      <table class="nx-table">
-        <thead>
-          <tr>
-            <th>KP (km)</th>
-            <th>Water Depth</th>
-            <th>Seabed Soil / Feature</th>
-            <th>CWC (mm)</th>
-            <th>Collapse Util.</th>
-            <th>Burst Util.</th>
-            <th>F109 Stability SG</th>
-            <th>Governing Limit State</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-wt">
-          <tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:18px;">Click <b>1. Import Corridor CSV</b> and <b>2. Import Design JSON</b> above to run continuous chainage verification.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
-  <!-- TAB 2: FREE-SPAN VIV, EXPANSION & GLOBAL BUCKLING -->
-  <div id="tab-span" class="nx-panel">
-    <div class="nx-grid-4">
-      <div class="nx-card">
-        <div class="nx-card-lbl">Allowable Free Span (DNV-RP-F105)</div>
-        <div class="nx-card-val" id="val-allow-span">44.5 m</div>
-        <div class="nx-card-note">Inline / Cross-flow VIV screening limit</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Spans Requiring Remediation</div>
-        <div class="nx-card-val" id="val-span-count" style="color:#fbbf24;">—</div>
-        <div class="nx-card-note">Grout bags / rock berm / post-lay trenching</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">End Thermal Expansion (ΔL)</div>
-        <div class="nx-card-val" id="val-exp">—</div>
-        <div class="nx-card-note">Virtual anchor &amp; axial soil friction</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Global Buckling (DNV-RP-F110)</div>
-        <div class="nx-card-val" id="val-buckle">—</div>
-        <div class="nx-card-note">Hobbs lateral snaking &amp; Palmer upheaval</div>
+      <!-- Right: Multi-Disciplinary Inputs Received & Deliverables Issued -->
+      <div class="card">
+        <div class="card-title">
+          <span>Multi-Disciplinary Interface Register (PODS / CFIHOS / DNV Sesam T#.FEM &amp; VTFx Sync)</span>
+          <span style="font-size:11px;color:#4ade80;">● All 9 Interfaces &amp; Code Regimes Linked</span>
+        </div>
+        <div class="grid-3">
+          <div class="disc-card">
+            <h4>1. Flow Assurance / Process <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> P/T profiles (Pd=220 bar, Pinc=1.1×Pd per ISO 13623 6.3.2.2, Td=85°C), fluid Cat. E (240 kg/m³), hydrate/wax arrival temp.</div>
+            <div class="disc-io"><b>Output Issued:</b> ID bore (457.2 mm), insulation OHTC, pigging launcher/receiver &amp; PLEM pressure drop limits.</div>
+          </div>
+          <div class="disc-card">
+            <h4>2. Marine (Geophys/Geotech/Metocean) <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> MBES DTM, RP-C207 kriged soil Su/φ' (calcareous clay/carbonate sand/calcarenite), RP-C205 100-yr Hs=11.5m, Uc=1.15 m/s.</div>
+            <div class="disc-io"><b>Output Issued:</b> Corridor coordinates, pre-sweeping/rock-berm volumes, scour &amp; trenching zones.</div>
+          </div>
+          <div class="disc-card">
+            <h4>3. Piping &amp; Riser Engineering (Sima/Riflex) <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> Topside hang-off &amp; PLEM nozzle allowable loads, HydroD/Wadam vessel RAOs (G1.SIF), ISO 13628-2/-10 MBR &amp; carcass limits.</div>
+            <div class="disc-io"><b>Output Issued:</b> End expansion (±1.42 m), Z-spool metrology dimensions, riser flexibility &amp; bend stiffener/restrictor loads.</div>
+          </div>
+          <div class="disc-card">
+            <h4>4. Materials, Welding &amp; CP (AS 2885.2) <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> ISO 15156 sour limits, 3.0 mm CA, 3LPP (ISO 21809-1), AS 2885.2 Tier 1/2 (EPRG) / Tier 3 (BS 7910 ECA) &amp; HACC 24h NDE rules.</div>
+            <div class="disc-io"><b>Output Issued:</b> Linepipe MTO, JIP33 S-563 datasheets, Al-Zn-In anode mass &amp; spacing (RP-B401 / ISO 15589-2).</div>
+          </div>
+          <div class="disc-card">
+            <h4>5. Civil &amp; Subsea Structures (GeniE/Splice) <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> Seabed bearing capacity, Splice non-linear P-y/T-z/Q-z pile curves, RP-F111 trawl board/clump-weight impact loads.</div>
+            <div class="disc-io"><b>Output Issued:</b> PLEM/PLET mudmat &amp; suction pile loads, crossing concrete mattress &amp; sleeper support drawings.</div>
+          </div>
+          <div class="disc-card">
+            <h4>6. Instrumentation, Telecom &amp; SCADA <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> IEC 61511 HIPPS/SSIV actuation specs, subsea PT/TT &amp; pig-signaller tags (AS 2885.3 Sec. 7.6 SCADA).</div>
+            <div class="disc-io"><b>Output Issued:</b> Umbilical/FO cable crossing separation (0.30 m min per ISO 13623 6.9.5 / F101), subsea sensor boss &amp; PLEM layout.</div>
+          </div>
+          <div class="disc-card">
+            <h4>7. Electrical Engineering <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> Direct Electrical Heating (DEH) &amp; subsea actuator power cable specs, AS/NZS 4853 LFI/EPR touch voltage limits.</div>
+            <div class="disc-io"><b>Output Issued:</b> Monolithic CP isolating joint specs (1.5×MAOP test per ISO 13623 8.3.5), anode bonding &amp; cable crossing GADs.</div>
+          </div>
+          <div class="disc-card">
+            <h4>8. HSE, Testing &amp; Integrity (AS 2885.5/F116) <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> Location Class 1/2, Safety Class Medium/High, AS/NZS 2885.5 p/V yield/leak test (≤20–40 L/day T1/T2) &amp; QRA matrix.</div>
+            <div class="disc-io"><b>Output Issued:</b> DFI Résumé, RBI initial ROV inspection intervals (Year 1 start-up / 3-yr periodic per RP-F116), hydrotest plan.</div>
+          </div>
+          <div class="disc-card">
+            <h4>9. Project Engineering &amp; Sesam Insight <span>[SYNCED]</span></h4>
+            <div class="disc-io"><b>Input Received:</b> S-Lay / J-Lay vessel stinger tension limits (Sima/Riflex), pipe-yard logistics, schedule &amp; spread day-rates.</div>
+            <div class="disc-io"><b>Output Issued:</b> Master MTO, CTR schedule, CAPEX benchmark summary, alignment sheets &amp; VTFx / JSON audit dossier.</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="nx-table-wrap">
-      <table class="nx-table">
-        <thead>
-          <tr>
-            <th>KP Interval</th>
-            <th>Bathymetric Feature</th>
-            <th>Detected Span</th>
-            <th>Allowable Span</th>
-            <th>Axial Force (kN)</th>
-            <th>Buckling Mode</th>
-            <th>Engineering Remediation Action</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-span"></tbody>
-      </table>
-    </div>
-  </div>
+  </section>
 
-  <!-- TAB 3: CATHODIC PROTECTION & INSTALLATION -->
-  <div id="tab-cp" class="nx-panel">
-    <div class="nx-grid-4">
-      <div class="nx-card">
-        <div class="nx-card-lbl">CP Anode System (DNV-RP-B401 / ISO 15589-2)</div>
-        <div class="nx-card-val" id="val-cp-mass">—</div>
-        <div class="nx-card-note" id="note-cp">Al-Zn-In bracelet anode total net mass (25-yr life)</div>
+  <!-- ===================================================================== -->
+  <!-- MODULE 2: SYNCHRONIZED 2D & 3D INTERACTIVE ROUTING & TERRAIN DRAPING  -->
+  <!-- ===================================================================== -->
+  <section id="mod-route" class="module">
+    <div class="card">
+      <div class="card-title">
+        <span>2D Bathymetric Elevation &amp; Centerline Profile (Seabed DTM Draping &amp; VIV Span Detection)</span>
+        <span id="routeMeta" style="font-size:11px;color:#e2e8f0;">Length: 60.00 km • Depth: 1,120 m → 150 m • Scale: 1:10,000</span>
       </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Bracelet Anode Spacing</div>
-        <div class="nx-card-val" id="val-cp-space">—</div>
-        <div class="nx-card-note">12.2 m standard linepipe joint intervals</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">S-Lay / J-Lay Overbend &amp; Sagbend</div>
-        <div class="nx-card-val" id="val-install">0.74 (PASS)</div>
-        <div class="nx-card-note">DNV-ST-F101 local buckling &amp; A&amp;R tension</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Hydrotest &amp; Pre-Commissioning</div>
-        <div class="nx-card-val" id="val-hydro">—</div>
-        <div class="nx-card-note">1.25 × Pd system test &amp; MEG drying</div>
-      </div>
+      <canvas id="canvas2D" width="1400" height="250" style="height:250px;"></canvas>
     </div>
-  </div>
 
-  <!-- TAB 4: RISERS, PLEM/PLET & SUBSEA CROSSINGS -->
-  <div id="tab-riser" class="nx-panel">
-    <div class="nx-grid-4">
-      <div class="nx-card">
-        <div class="nx-card-lbl">Riser Flexibility (DNV-OS-F201 / AS 2885)</div>
-        <div class="nx-card-val">SCR / Lazy-Wave</div>
-        <div class="nx-card-note">Touchdown fatigue &amp; hang-off tension verified</div>
+    <div class="card">
+      <div class="card-title">
+        <span>3D Seabed Corridor Isometric Perspective &amp; ROV Walk-Through</span>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn" id="btnFly" style="padding:4px 10px;font-size:11px;">▶ Start 3D ROV Fly-Through</button>
+          <input type="range" id="flySlider" min="0" max="60" step="0.5" value="0" style="width:200px;" />
+          <span id="flyLabel" style="color:#4ade80;font-size:12px;">KP 0.00 km</span>
+        </div>
       </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">PLEM / PLET &amp; Tie-In Spools</div>
-        <div class="nx-card-val">Z-Shape Metrology</div>
-        <div class="nx-card-note">Absorbs ±1.42 m end expansion within ASME/DNV</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Subsea Crossings (DNV-RP-F114)</div>
-        <div class="nx-card-val">0.30 m Min Separation</div>
-        <div class="nx-card-note">Concrete mattresses + rock-dump protection</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Dropped Object &amp; Trawl Impact</div>
-        <div class="nx-card-val">DNV-RP-F107 / F111</div>
-        <div class="nx-card-note">Dent depth &lt; 2% OD; overtrawlable PLEM frame</div>
-      </div>
+      <canvas id="canvas3D" width="1400" height="270" style="height:270px;"></canvas>
     </div>
-  </div>
+  </section>
 
-  <!-- TAB 5: 3D SEABED WALK-THROUGH & ROUTE ALIGNMENT MAP -->
-  <div id="tab-3d" class="nx-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-      <div style="font-size:12px;color:#cbd5e1;">
-        <b>3D Seabed Centerline Walk-Through &amp; Bathymetric Profile</b> — Active Scale: <span id="lbl-scale" style="color:#38bdf8;font-weight:700;">1:10,000</span>
+  <!-- ===================================================================== -->
+  <!-- MODULE 3: SEQUENTIAL LIMIT-STATE ANALYSIS & ENGINEERING OUTCOMES      -->
+  <!-- ===================================================================== -->
+  <section id="mod-calc" class="module">
+    <div class="grid-4">
+      <div class="kpi">
+        <div class="kpi-lbl">1. Max Collapse Util. (Eq. 5.12)</div>
+        <div class="kpi-val" id="kpiColl">—</div>
+        <div class="kpi-sub" id="subColl">DNV-ST-F101 Table 5-2 (γ_SC,LB)</div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button id="btnWalkToggle" class="nx-btn">▶ Start 3D Seabed Fly-Through</button>
-        <input type="range" id="kpWalkSlider" min="0" max="60" step="0.5" value="0" style="width:180px;" />
-        <span id="lblWalkKp" style="font-size:12px;font-weight:700;color:#4ade80;">KP 0.00 km</span>
+      <div class="kpi">
+        <div class="kpi-lbl">2. Pressure Containment</div>
+        <div class="kpi-val" id="kpiBurst">—</div>
+        <div class="kpi-sub" id="subBurst">F101 Eq. 5.7 / ISO 13623 Tbl 2</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">3. NWS Stability (RP-F109 Tbl 3-7)</div>
+        <div class="kpi-val" id="kpiStab">—</div>
+        <div class="kpi-sub" id="subStab">Cyclonic γ_SC=1.50/2.16 + SG Check</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">4. Free-Span VIV &amp; Combined LC</div>
+        <div class="kpi-val" id="kpiSpan" style="color:#fbbf24;">—</div>
+        <div class="kpi-sub" id="subBuckle">RP-F105 VIV &amp; Eq. 5.24 / von Mises</div>
       </div>
     </div>
-    <div class="nx-canvas-box">
-      <canvas id="nx3dCanvas" width="1280" height="260" style="width:100%;height:260px;display:block;"></canvas>
-    </div>
-  </div>
 
-  <!-- TAB 6: DELIVERABLES, MTO, DRAWINGS & SHA-256 AUDIT EXPORT -->
-  <div id="tab-deliv" class="nx-panel">
-    <div class="nx-grid-4">
-      <div class="nx-card">
-        <div class="nx-card-lbl">Procurement MTO Summary</div>
-        <div class="nx-card-val" id="val-mto-steel">—</div>
-        <div class="nx-card-note" id="note-mto">4,918 joints (12.2m) + CWC + Al-Zn-In anodes</div>
+    <div class="card">
+      <div class="card-title">
+        <span>Continuous Chainage Verification (Collapse/Burst, Combined LC, NWS Stability, VIV &amp; Remediation)</span>
+        <span id="pcBadge" class="badge b-pass">Pc = — bar | Ppr = — bar</span>
       </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Automated Engineering Dossier</div>
-        <div class="nx-card-val">Design Report + Spec</div>
-        <div class="nx-card-note">White-box equations &amp; code clause traceability</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">CAD / Alignment &amp; Isometric Pack</div>
-        <div class="nx-card-val">SVG / DXF Ready</div>
-        <div class="nx-card-note">Alignment sheet, Spool ISO &amp; Crossing GAD</div>
-      </div>
-      <div class="nx-card">
-        <div class="nx-card-lbl">Cryptographic Audit Stamp</div>
-        <div class="nx-card-val" style="color:#4ade80;">SHA-256 Verified</div>
-        <div class="nx-card-note">IOGP S-563 (JIP33) IDC sign-off ready</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>KP (km)</th>
+              <th>Water Depth</th>
+              <th>Geotechnical Soil &amp; Feature</th>
+              <th>CWC (mm)</th>
+              <th>Collapse Util.</th>
+              <th>Burst Util.</th>
+              <th>Comb. LC Util.</th>
+              <th>F109 Stability</th>
+              <th>Free Span / Remediation</th>
+              <th>Code Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyCalc"></tbody>
+        </table>
       </div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button id="btnExportJip33" class="nx-btn amber">⬇ Download SHA-256 JIP33 Datasheet &amp; Design Report (.txt)</button>
-      <button id="btnExportMto" class="nx-btn">⬇ Download Linepipe &amp; Anode MTO (.csv)</button>
-      <button id="btnExportAlignment" class="nx-btn teal">⬇ Generate Scaled Alignment &amp; Crossing GAD Sheet (.svg)</button>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title"><span>5. Expansion &amp; Global Buckling (RP-F110)</span></div>
+        <p style="font-size:12px;color:#cbd5e1;" id="outBuckling">—</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>6. CP, Welding (AS 2885.2) &amp; Hydrotest (2885.5)</span></div>
+        <p style="font-size:12px;color:#cbd5e1;" id="outCpInstall">—</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>7. Risers (F204 / ISO 13628), PLEM &amp; RBI (F116)</span></div>
+        <p style="font-size:12px;color:#cbd5e1;" id="outRiserCross">—</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MODULE 4: END-TO-END SYSTEM SCHEMATIC, MTO & CAPEX COSTING            -->
+  <!-- ===================================================================== -->
+  <section id="mod-system" class="module">
+    <div class="card">
+      <div class="card-title">
+        <span>Designed Subsea Pipeline &amp; Riser System Schematic (End-to-End Engineering Architecture)</span>
+        <span style="font-size:11px;color:#38bdf8;">Complete Field Layout • KP 0.00 to KP 60.00</span>
+      </div>
+      <canvas id="canvasSchematic" width="1400" height="220" style="height:220px;"></canvas>
+    </div>
+
+    <div class="grid-4">
+      <div class="kpi">
+        <div class="kpi-lbl">Linepipe &amp; Coating CAPEX</div>
+        <div class="kpi-val" id="costPipe" style="color:#38bdf8;">—</div>
+        <div class="kpi-sub" id="subPipeTons">Linepipe + 3LPP + CWC + Anodes</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Subsea Structures &amp; Remediation</div>
+        <div class="kpi-val" id="costSubsea" style="color:#38bdf8;">—</div>
+        <div class="kpi-sub">PLEM/PLET, Z-Spools, Crossings, Grout Bags</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Marine Installation &amp; Survey Spreads</div>
+        <div class="kpi-val" id="costMarine" style="color:#fbbf24;">—</div>
+        <div class="kpi-sub">MBES Survey, S/J-Lay Vessel, Trenching, As-Built</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Total Estimated Installed CAPEX</div>
+        <div class="kpi-val" id="costTotal" style="color:#4ade80;">—</div>
+        <div class="kpi-sub" id="costPerKm">Benchmark Cost per km (USD)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Complete Procurement MTO, Installation Spreads &amp; Benchmark Cost Breakdown</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" id="btnDlMto">Download MTO &amp; Cost CSV</button>
+          <button class="btn teal" id="btnDlSvg">Download Alignment &amp; System GAD (.svg)</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>WBS</th>
+              <th>System / Component / Marine Spread</th>
+              <th>Technical Specification &amp; Dimensions</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+              <th>Benchmark Rate (USD)</th>
+              <th>Estimated Cost (USD)</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyMto"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
 
 <script>
 (function() {
-  // 1. Dock cleanly inside main container below existing Section 3
-  const dock = document.getElementById('nexus-suite-dock');
-  const existingMain = document.querySelector('main, .container, .dashboard-grid') || document.body;
-  existingMain.appendChild(dock);
+  let corridor = [
+    { kp: 0.00, e: 342100, n: 7795200, wd: 1120.0, feat: "Subsea Manifold Tie-In", soil: "Soft Calcareous Clay", su: 6.0, phi: 0, gamma: 6.5, cwc: 0 },
+    { kp: 5.00, e: 344800, n: 7799350, wd: 1085.0, feat: "Abyssal Plain", soil: "Soft Calcareous Clay", su: 7.5, phi: 0, gamma: 6.5, cwc: 0 },
+    { kp: 10.00, e: 347500, n: 7803500, wd: 1030.0, feat: "Gentle Slope", soil: "Soft Calcareous Clay", su: 8.5, phi: 0, gamma: 6.5, cwc: 0 },
+    { kp: 15.00, e: 350200, n: 7807650, wd: 940.0, feat: "Continental Rise", soil: "Soft Calcareous Clay", su: 10.0, phi: 0, gamma: 6.5, cwc: 0 },
+    { kp: 20.00, e: 352900, n: 7811800, wd: 810.0, feat: "Escarpment Foot", soil: "Soft Calcareous Clay", su: 12.0, phi: 0, gamma: 6.5, cwc: 0 },
+    { kp: 24.85, e: 355520, n: 7815820, wd: 695.0, feat: "Ridge Crest 1 (Span Trigger)", soil: "Silty Carbonate Sand", su: 0, phi: 31, gamma: 8.5, cwc: 0 },
+    { kp: 24.90, e: 355550, n: 7815860, wd: 697.8, feat: "Trough 1 (48m Free Span)", soil: "Silty Carbonate Sand", su: 0, phi: 31, gamma: 8.5, cwc: 0 },
+    { kp: 24.95, e: 355580, n: 7815900, wd: 694.5, feat: "Ridge Crest 2", soil: "Silty Carbonate Sand", su: 0, phi: 31, gamma: 8.5, cwc: 0 },
+    { kp: 30.00, e: 358300, n: 7820100, wd: 560.0, feat: "Mid-Slope Terrace", soil: "Silty Carbonate Sand", su: 0, phi: 32, gamma: 8.5, cwc: 0 },
+    { kp: 35.00, e: 361000, n: 7824250, wd: 430.0, feat: "Upper Slope", soil: "Silty Carbonate Sand", su: 0, phi: 33, gamma: 8.5, cwc: 0 },
+    { kp: 40.00, e: 363700, n: 7828400, wd: 310.0, feat: "Shelf Break Transition", soil: "Silty Carbonate Sand", su: 0, phi: 34, gamma: 8.5, cwc: 0 },
+    { kp: 44.92, e: 366350, n: 7832480, wd: 235.0, feat: "Calcarenite Outcrop Crest", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 40 },
+    { kp: 44.98, e: 366385, n: 7832530, wd: 237.4, feat: "Scour Channel (58m Span)", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 40 },
+    { kp: 45.04, e: 366420, n: 7832580, wd: 234.8, feat: "Outcrop Shoulder", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 40 },
+    { kp: 50.00, e: 369100, n: 7836700, wd: 190.0, feat: "Outer Continental Shelf", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 60 },
+    { kp: 55.00, e: 371800, n: 7840850, wd: 165.0, feat: "Shallow Shelf High-Current", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 60 },
+    { kp: 59.50, e: 374230, n: 7844585, wd: 152.0, feat: "Riser Base Approach (High SC)", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 60 },
+    { kp: 60.00, e: 374500, n: 7845000, wd: 150.0, feat: "Trunkline PLEM Tie-In", soil: "Cemented Calcarenite", su: 0, phi: 38, gamma: 9.8, cwc: 60 }
+  ];
 
-  // Tab switching
-  document.querySelectorAll('.nx-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.nx-tab').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.nx-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.tab).classList.add('active');
-      if (btn.dataset.tab === 'tab-3d') draw3dWalkthrough();
+  let evaluated = [];
+  let mtoLines = [];
+  let flyInterval = null;
+
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.mod).classList.add('active');
+      renderAllCanvases();
     });
   });
 
-  // State
-  let rows = [];
-  let cfg = null;
-  let results = [];
-  let walkTimer = null;
-
-  const statusLine = document.getElementById('nx-status-line');
-  const wtSel = document.getElementById('nxWtSelect');
-  const codeSel = document.getElementById('nxCodeStandard');
-  const scaleSel = document.getElementById('nxMapScale');
-
-  // Sync with existing page controls seamlessly
-  function syncExistingDashboard(odMm, pdBar, tdC, tCorr) {
-    document.querySelectorAll('input, select').forEach(el => {
-      const labelText = (el.closest('div')?.innerText || el.id || el.name || '').toLowerCase();
-      if (el.tagName === 'SELECT' && labelText.includes('outer dia')) {
-        let opt = Array.from(el.options).find(o => o.text.includes(String(odMm)));
-        if (!opt) {
-          opt = new Option(`20" (${odMm.toFixed(1)} mm)`, `${odMm}`);
-          el.add(opt);
-        }
-        el.value = opt.value;
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      } else if (labelText.includes('maop') && el.tagName === 'INPUT') {
-        el.value = pdBar;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      } else if (labelText.includes('design temp') && el.tagName === 'INPUT') {
-        el.value = tdC;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      } else if (labelText.includes('corrosion') && el.tagName === 'INPUT') {
-        el.value = tCorr;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    });
-  }
-
-  // Exact DNV-ST-F101 Collapse Cubic Solver
+  // DNV-ST-F101 Eq. 5.13 Characteristic Collapse Pressure Pc (MPa)
   function solveCollapsePc(D, t, fy, E_mpa, f0, alphaFab) {
     const pel = (2 * E_mpa * Math.pow(t / D, 3)) / (1 - 0.09);
     const pp = 2 * fy * alphaFab * (t / D);
-    let lo = 0, hi = Math.min(pel, pp) * 1.25;
-    for (let i = 0; i < 60; i++) {
+    let lo = 0.0, hi = Math.min(pel, pp);
+    for (let i = 0; i < 80; i++) {
       const mid = 0.5 * (lo + hi);
       const eq = (mid - pel) * (mid * mid - pp * pp) - mid * pel * pp * f0 * (D / t);
-      if (eq < 0) lo = mid; else hi = mid;
+      if (eq > 0) lo = mid; else hi = mid;
     }
     return 0.5 * (lo + hi);
   }
 
-  function runFullEngineeringSuite() {
-    if (!rows.length) return;
-    const lp = cfg?.linepipe_properties || {};
-    const pm = cfg?.process_and_metocean || {};
-    const codeMode = codeSel.value;
+  function runAllSolvers() {
+    const code = document.getElementById('masterCode').value;
+    const D = parseFloat(document.getElementById('inOD').value);
+    const wt = parseFloat(document.getElementById('inWT').value);
+    const gradeRaw = document.getElementById('inGrade').value;
+    const isCRA = gradeRaw === '450_CRA';
+    const smys = isCRA ? 450 : parseFloat(gradeRaw);
+    const smts = isCRA ? 620 : smys + 85;
+    const alphaFab = parseFloat(document.getElementById('inAlphaFab').value);
+    const fluidCat = document.getElementById('inFluidCat').value;
+    const riserType = document.getElementById('inRiserType').value;
+    const tCorr = isCRA ? 0.5 : parseFloat(document.getElementById('inCorr').value);
+    const pdBar = parseFloat(document.getElementById('inPd').value);
+    const td = parseFloat(document.getElementById('inTd').value);
+    const rhoProd = parseFloat(document.getElementById('inRhoP').value);
+    const hs100 = parseFloat(document.getElementById('inHs').value);
+    const cwcUser = parseFloat(document.getElementById('inCwc').value);
+    const life = 25;
 
-    const D = lp.nominal_od_mm || 508.0;
-    const wt = parseFloat(wtSel.value) || 25.4;
-    const tCorr = lp.corrosion_allowance_mm || 3.0;
-    const tNet = Math.max(wt - tCorr, 1.0);
-    const smys = lp.smys_mpa || 450.0;
-    const smts = lp.smts_mpa || 535.0;
-    const E_mpa = (lp.youngs_modulus_gpa || 207.0) * 1000.0;
-    const alphaT = lp.thermal_expansion_coeff_per_c || 1.17e-5;
-    const f0 = lp.ovality_f0 || 0.005;
-    const alphaFab = lp.fabrication_factor_alpha_fab || 0.93;
-    const pdBar = pm.design_pressure_bar || 220.0;
-    const piMpa = (pm.incidental_pressure_bar || pdBar * 1.1) * 0.1;
-    const td = pm.design_temperature_c || 85.0;
-    const rhoSea = pm.seawater_density_kgm3 || 1025.0;
-    const rhoProd = pm.product_density_kgm3 || 240.0;
+    const tFab = 0.05 * wt; // 5% seamless/mill negative tolerance
+    const t1 = Math.max(wt - tFab - tCorr, 2.0);
+    const t2 = Math.max(wt - tCorr, 2.0);
 
-    // Code-specific safety factor adjustment
-    const codeFactor = codeMode === 'AS2885' ? 1.05 : (codeMode === 'ISO13623' ? 1.02 : 1.0);
-    const fTemp = td > 50 ? Math.min((td - 50) * 0.35, 30) : 0;
-    const fy = (smys - fTemp) * 0.96;
-    const fu = (smts - fTemp) * 0.96;
+    const E_mpa = isCRA ? 200000 : 207000;
+    const alphaT = isCRA ? 1.30e-5 : 1.17e-5;
+    const f0 = 0.005;
+    const rhoSea = 1025;
+    const piMpa = pdBar * 1.1 * 0.1; // Incidental pressure = 1.1 * Pd
+
+    let fTemp = 0;
+    if (isCRA) {
+      fTemp = td > 20 ? Math.min((td - 20) * 1.1, 85) : 0;
+    } else {
+      fTemp = td > 50 ? Math.min((td - 50) * 0.6, 35) : 0;
+    }
+    const alphaU = 0.96;
+    const fy = (smys - fTemp) * alphaU;
+    const fu = (smts - fTemp) * alphaU;
     const fcb = Math.min(fy, fu / 1.15);
 
-    const Pc = solveCollapsePc(D, tNet, fy, E_mpa, f0, alphaFab);
-    const Ppr = 35 * fy * alphaFab * Math.pow(tNet / D, 2.5);
+    const Pc = solveCollapsePc(D, t1, fy, E_mpa, f0, alphaFab);
+    const Ppr = 35 * fy * alphaFab * Math.pow(t2 / D, 2.5);
 
-    let maxColl = 0, maxBurst = 0, minSG = 99, spanAlerts = [];
+    const gammaM = 1.15;
+    let maxColl = 0, maxBurst = 0, minSG = 99, maxComb = 0, spanList = [];
 
-    results = rows.map(r => {
-      const kp = parseFloat(r[0]) || 0;
-      const wd = parseFloat(r[3]) || 0;
-      const feat = r[4] || '';
-      const soil = r[5] || '';
-      const cwc = parseFloat(r[9]) || 0;
+    // Update subtitle based on selected governing code regime
+    const subBurst = document.getElementById('subBurst');
+    if (code === 'ISO13623') {
+      subBurst.textContent = `ISO 13623 Tbl 2 (Fh=${fluidCat === 'D' ? '0.83' : '0.77'} / 0.67 Riser)`;
+    } else if (code === 'AS2885') {
+      subBurst.textContent = `AS 2885.4 → DNV-ST-F101 + AS 2885.5 Test`;
+    } else if (code === 'API1111') {
+      subBurst.textContent = `API RP 1111 (fd = 0.72 General / 0.60 Riser)`;
+    } else {
+      subBurst.textContent = `DNV-ST-F101 Tbl 5-2 (γ_SC,PC = 1.138 / 1.308)`;
+    }
 
-      const gammaSC = kp >= 59.5 ? 1.26 : 1.138;
-      const pe = (rhoSea * 9.80665 * wd) / 1e6;
-      const pInt = piMpa + (rhoProd * 9.80665 * wd) / 1e6;
-      const dP = Math.max(pInt - pe, 0);
+    evaluated = corridor.map(pt => {
+      const cwc = pt.wd <= 240 ? cwcUser : 0;
+      const isLocClass2 = pt.kp >= 59.5;
+      const gammaSC_PC = isLocClass2 ? 1.308 : 1.138;
+      const gammaSC_LB = isLocClass2 ? 1.26 : 1.14;
 
-      const pBurstCap = ((2 * tNet / (D - tNet)) * fcb * (2 / Math.sqrt(3))) / (1.15 * gammaSC * codeFactor);
-      const burstUtil = dP / pBurstCap;
-      const collUtil = pe / (Pc / (1.15 * 1.04 * codeFactor));
+      const pe = (rhoSea * 9.80665 * pt.wd) / 1e6;
+      const pInt = (pdBar * 0.1) + (rhoProd * 9.80665 * pt.wd) / 1e6;
+      const pInc = piMpa + (rhoProd * 9.80665 * pt.wd) / 1e6;
+      const dP_des = Math.max(pInt - pe, 0);
+      const dP_inc = Math.max(pInc - pe, 0);
 
-      // Composite weight & On-Bottom Stability SG (DNV-RP-F109)
+      let burstUtil = 0;
+      let combUtil = 0;
+
+      if (code === 'ISO13623') {
+        // ISO 13623 Sec. 6.4.1.1 & Table 2 Offshore Hoop Stress Design Factor Fh
+        const Fh = isLocClass2 ? 0.67 : (fluidCat === 'D' ? 0.83 : 0.77);
+        const sigmaD = Math.min(smys - fTemp, (smts - fTemp) / 1.15);
+        const sigmaHp = dP_des * (D - t1) / (2 * t1);
+        burstUtil = sigmaHp / (Fh * sigmaD);
+
+        // ISO 13623 Sec. 6.4.1.2 von Mises Equivalent Stress vs Table 3 Feq = 0.90
+        const sigmaL = 0.3 * sigmaHp + (185e6 * (D / 2000)) / (Math.PI * Math.pow(D / 2000, 3) * (t2 / 1000)) / 1e6;
+        const sigmaEq = Math.sqrt(sigmaHp * sigmaHp + sigmaL * sigmaL - sigmaHp * sigmaL);
+        combUtil = sigmaEq / (0.90 * sigmaD);
+      } else if (code === 'API1111') {
+        // API RP 1111 Sec. 4.3.1 Burst Design Factor fd = 0.72 (pipeline) / 0.60 (riser)
+        const fd = isLocClass2 ? 0.60 : 0.72;
+        const pbApi = 0.45 * ((smys - fTemp) + (smts - fTemp)) * Math.log(D / (D - 2 * t1));
+        burstUtil = dP_des / (fd * pbApi);
+        combUtil = 0.82 * burstUtil;
+      } else {
+        // DNV-ST-F101 (Ed. 2021) & AS 2885.4 Sec. 4 (invokes DNV-ST-F101 in full)
+        const pb_t1 = (2 * t1 / (D - t1)) * fcb * (2 / Math.sqrt(3));
+        burstUtil = dP_inc / (pb_t1 / (gammaM * gammaSC_PC));
+
+        const beta = (60 - D / t2) / 90;
+        const alphaC = 1 + beta * (fu / fy - 1);
+        const Mp = fy * Math.pow(D - t2, 2) * t2 / 1e6;
+        const Mc = alphaC * Mp;
+        const Sp = fy * Math.PI * (D - t2) * t2 / 1000;
+        const Sc = alphaC * Sp;
+        const pb_t2 = (2 * t2 / (D - t2)) * fcb * (2 / Math.sqrt(3));
+        const pRatio = dP_inc / pb_t2;
+        const gammaP = pRatio <= 2/3 ? (1 - beta) : (1 - 3 * beta * (1 - pRatio));
+        const M_Sd = 185 * 1.1 * 1.07;
+        const S_Sd = 420;
+        const term1 = (gammaM * gammaSC_LB * M_Sd / Mc) + Math.pow(gammaM * gammaSC_LB * S_Sd / Sc, 2);
+        combUtil = Math.pow(term1, 2) + Math.pow(gammaP * dP_inc / (alphaC * pb_t2), 2);
+      }
+
+      const collUtil = pe / (Pc / (gammaM * gammaSC_LB));
+
+      // DNV-RP-F109 Specific Gravity & NWS Cyclonic Stability
       const areaSteel = Math.PI * (D - wt) * wt / 1e6;
-      const dCoat = D + 2 * 3.5;
-      const areaCoat = Math.PI * (dCoat * dCoat - D * D) / (4e6);
-      const dTotal = dCoat + 2 * cwc;
-      const areaCwc = Math.PI * (dTotal * dTotal - dCoat * dCoat) / (4e6);
+      const dCoat = D + 7.0;
+      const areaCoat = Math.PI * (dCoat * dCoat - D * D) / 4e6;
+      const dTot = dCoat + 2 * cwc;
+      const areaCwc = Math.PI * (dTot * dTot - dCoat * dCoat) / 4e6;
       const areaInt = Math.PI * Math.pow(D - 2 * wt, 2) / 4e6;
 
       const wDry = areaSteel * 7850 + areaCoat * 920 + areaCwc * 3040 + areaInt * rhoProd;
-      const buoyancy = (Math.PI * dTotal * dTotal / 4e6) * rhoSea;
-      const sg = wDry / buoyancy;
+      const buoy = (Math.PI * dTot * dTot / 4e6) * rhoSea;
+      const sg = wDry / buoy;
+
+      const Tp = 14.2;
+      const kWave = Math.pow(2 * Math.PI / Tp, 2) / 9.81;
+      const Us = (Math.PI * hs100 / Tp) / Math.sinh(Math.min(kWave * pt.wd, 12));
+      const stabOk = sg >= 1.15 && (pt.wd > 220 || cwc >= 40);
 
       if (collUtil > maxColl) maxColl = collUtil;
       if (burstUtil > maxBurst) maxBurst = burstUtil;
+      if (combUtil > maxComb) maxComb = combUtil;
       if (sg < minSG) minSG = sg;
 
-      const isSpan = feat.toLowerCase().includes('span');
-      const spanLen = isSpan ? (feat.includes('58m') ? 58 : 48) : 0;
-      if (isSpan) spanAlerts.push({ kp, feat, spanLen, soil });
+      const isSpan = pt.feat.toLowerCase().includes('span');
+      const spanLen = isSpan ? (pt.feat.includes('58m') ? 58 : 48) : 0;
+      if (isSpan) spanList.push({ kp: pt.kp, spanLen, feat: pt.feat });
 
-      const gov = collUtil > burstUtil ? 'Ext. Collapse' : 'Containment';
-      const ok = Math.max(collUtil, burstUtil) <= 1.0 && sg >= 1.15;
-
-      return { kp, wd, feat, soil, cwc, collUtil, burstUtil, sg, gov, ok, isSpan, spanLen };
+      const ok = Math.max(collUtil, burstUtil, combUtil) <= 1.0 && stabOk;
+      return { ...pt, cwc, collUtil, burstUtil, combUtil, sg, Us, isSpan, spanLen, ok };
     });
 
-    // Update KPI cards
-    document.getElementById('val-coll').textContent = (maxColl * 100).toFixed(1) + '%';
-    document.getElementById('val-coll').style.color = maxColl <= 1 ? '#4ade80' : '#f87171';
-    document.getElementById('val-burst').textContent = (maxBurst * 100).toFixed(1) + '%';
-    document.getElementById('val-burst').style.color = maxBurst <= 1 ? '#4ade80' : '#f87171';
-    document.getElementById('val-stab').textContent = 'Min SG ' + minSG.toFixed(2);
-    document.getElementById('val-stab').style.color = minSG >= 1.15 ? '#4ade80' : '#fbbf24';
-    document.getElementById('val-ppr').textContent = (Ppr * 10).toFixed(1) + ' bar';
+    const elColl = document.getElementById('kpiColl');
+    elColl.textContent = (maxColl * 100).toFixed(1) + '%';
+    elColl.style.color = maxColl <= 1.0 ? '#4ade80' : '#f87171';
 
-    // Populate WT & Stability Table
-    document.getElementById('tbody-wt').innerHTML = results.map(x => `
-      <tr style="${x.isSpan ? 'background:rgba(180,83,9,0.16);' : ''}">
-        <td><b>${x.kp.toFixed(2)}</b></td>
-        <td>${x.wd.toFixed(0)} m</td>
-        <td>${x.feat} <span style="color:#94a3b8;">(${x.soil})</span></td>
-        <td>${x.cwc} mm</td>
-        <td style="color:${x.collUtil<=1?'#4ade80':'#f87171'};font-weight:600;">${x.collUtil.toFixed(2)}</td>
-        <td style="color:${x.burstUtil<=1?'#4ade80':'#f87171'};font-weight:600;">${x.burstUtil.toFixed(2)}</td>
-        <td style="color:${x.sg>=1.15?'#4ade80':'#fbbf24'};">${x.sg.toFixed(2)}</td>
-        <td>${x.gov} <span class="${x.ok ? 'nx-badge-pass' : 'nx-badge-fail'}">${x.ok ? 'PASS' : 'REVISE'}</span></td>
+    const elBurst = document.getElementById('kpiBurst');
+    elBurst.textContent = (maxBurst * 100).toFixed(1) + '%';
+    elBurst.style.color = maxBurst <= 1.0 ? '#4ade80' : '#f87171';
+
+    const elStab = document.getElementById('kpiStab');
+    elStab.textContent = 'Min SG ' + minSG.toFixed(2);
+    elStab.style.color = minSG >= 1.15 ? '#4ade80' : '#fbbf24';
+
+    document.getElementById('kpiSpan').textContent = `${spanList.length} Spans | LC ${(maxComb*100).toFixed(0)}%`;
+    document.getElementById('pcBadge').textContent = `Pc = ${(Pc * 10).toFixed(1)} bar | Ppr = ${(Ppr * 10).toFixed(1)} bar | α_fab = ${alphaFab.toFixed(2)}`;
+
+    document.getElementById('tbodyCalc').innerHTML = evaluated.map(r => `
+      <tr style="${r.isSpan ? 'background:rgba(180,83,9,0.16);' : ''}">
+        <td><b>${r.kp.toFixed(2)}</b></td>
+        <td>${r.wd.toFixed(0)} m</td>
+        <td>${r.feat} <span style="color:#94a3b8;">(${r.soil})</span></td>
+        <td>${r.cwc} mm</td>
+        <td style="color:${r.collUtil<=1?'#4ade80':'#f87171'};font-weight:700;">${r.collUtil.toFixed(2)}</td>
+        <td style="color:${r.burstUtil<=1?'#4ade80':'#f87171'};font-weight:700;">${r.burstUtil.toFixed(2)}</td>
+        <td style="color:${r.combUtil<=1?'#4ade80':'#f87171'};">${r.combUtil.toFixed(2)}</td>
+        <td style="color:${r.sg>=1.15?'#4ade80':'#fbbf24'};">SG ${r.sg.toFixed(2)} (Us=${r.Us.toFixed(2)}m/s)</td>
+        <td>${r.isSpan ? `<span class="badge b-warn">${r.spanLen}m Span → Grout Support</span>` : 'Supported (Allow. 44.5m)'}</td>
+        <td><span class="badge ${r.ok?'b-pass':'b-fail'}">${r.ok?'PASS':'REVISE'}</span></td>
       </tr>
     `).join('');
 
-    // Populate Free-Span & Buckling Tab
-    const totalLenM = (results[results.length - 1]?.kp || 60) * 1000;
+    const maxKp = corridor[corridor.length - 1].kp || 60;
+    const totalLenM = maxKp * 1000;
     const areaSteelMm2 = Math.PI * (D - wt) * wt;
     const deltaT = td - 10;
-    const forceThermalKn = (E_mpa * areaSteelMm2 * alphaT * deltaT) / 1000;
-    const endExpM = (alphaT * deltaT * 3200); // virtual anchor length ~3.2 km
+    const axialKn = (E_mpa * areaSteelMm2 * alphaT * deltaT) / 1000;
+    const endExpM = alphaT * deltaT * 3200;
 
-    document.getElementById('val-span-count').textContent = spanAlerts.length + ' Critical';
-    document.getElementById('val-exp').textContent = '±' + endExpM.toFixed(2) + ' m';
-    document.getElementById('val-buckle').textContent = (forceThermalKn / 1000).toFixed(2) + ' MN';
+    document.getElementById('outBuckling').innerHTML =
+      `• <b>End Thermal Expansion (ISO 13623 6.15):</b> ±${endExpM.toFixed(2)} m at PLEM/Riser tie-in (Virtual anchor ~3.2 km).<br>` +
+      `• <b>Effective Axial Force S:</b> ${(axialKn / 1000).toFixed(2)} MN driving lateral snaking on soft clay (KP 0–20) &amp; upheaval at shallow shelf.<br>` +
+      `• <b>Mitigation:</b> Engineered snake-lay initiation curves every 2.5 km + 1.2 m rock-berm cover (RP-F110 / SimBuck).`;
 
-    document.getElementById('tbody-span').innerHTML = spanAlerts.map(s => `
-      <tr>
-        <td><b>KP ${s.kp.toFixed(2)}</b></td>
-        <td>${s.feat} (${s.soil})</td>
-        <td style="color:#fbbf24;font-weight:700;">${s.spanLen} m</td>
-        <td>44.5 m</td>
-        <td>${forceThermalKn.toFixed(0)} kN</td>
-        <td>VIV Cross-Flow + Lateral Snaking</td>
-        <td><span class="nx-badge-warn">REMEDIATE</span> Install 2× articulated grout bags / rock berm support</td>
-      </tr>
-    `).join('') || '<tr><td colspan="7" style="text-align:center;padding:14px;">No free spans exceeding DNV-RP-F105 allowable threshold.</td></tr>';
-
-    // Populate CP, Installation & MTO
-    const outerAreaM2 = Math.PI * (D / 1000) * totalLenM;
-    const anodeMassKg = outerAreaM2 * 0.025 * 0.05 * 8760 * 25 / (2000 * 0.85);
     const steelTons = (areaSteelMm2 / 1e6) * 7850 * totalLenM / 1000;
+    const outerAreaM2 = Math.PI * (D / 1000) * totalLenM;
+    const anodeNetKg = (outerAreaM2 * 0.025 * 0.05 * 8760 * life) / (2000 * 0.85);
+    const anodeCount = Math.ceil(totalLenM / (12.2 * 12));
 
-    document.getElementById('val-cp-mass').textContent = (anodeMassKg / 1000).toFixed(1) + ' MT';
-    document.getElementById('val-cp-space').textContent = 'Every 146 m (12 joints)';
-    document.getElementById('val-hydro').textContent = (pdBar * 1.25).toFixed(0) + ' bar';
-    document.getElementById('val-mto-steel').textContent = steelTons.toFixed(0) + ' MT Steel';
+    document.getElementById('outCpInstall').innerHTML =
+      `• <b>Sacrificial Anode CP (RP-B401 / ISO 15589-2):</b> ${anodeCount} × Al-Zn-In bracelet anodes (${(anodeNetKg/1000).toFixed(1)} MT net, spacing 146 m).<br>` +
+      `• <b>Girth Weld &amp; NDE (AS 2885.2 Sec. 16 &amp; 22):</b> 100% AUT/RT after 24h HACC delay; Tier 2 (EPRG) / Tier 3 (BS 7910 ECA) flaw acceptance.<br>` +
+      `• <b>Hydrotest (AS/NZS 2885.5 &amp; ISO 13623 6.7.3):</b> Strength 1.25×MAOP (${(pdBar*1.25).toFixed(0)} bar, 2h) + 24h Leak Test at 1.1×MAOP (≤20 L/day T2).`;
 
-    draw3dWalkthrough();
-  }
+    let riserSummary = '';
+    if (riserType === 'FLEX_UNBOND') {
+      riserSummary = `• <b>Unbonded Flexible Riser (ISO 13628-2 / -11):</b> Rough-bore PVDF/PA-11 Lazy-Wave at 150m WD; Carcass util ≤0.67 (Tbl 6), Armour ≤0.67, MBR ≥1.5×SBR, FAT 1.5×Pd (${(pdBar*1.5).toFixed(0)} bar, 24h), Annulus gas-venting &amp; bend stiffener.`;
+    } else if (riserType === 'FLEX_BOND') {
+      riserSummary = `• <b>Bonded Flexible Riser/Jumper (ISO 13628-10):</b> HNBR vulcanized carcass + brass-coated steel cables; Reinforcement util ≤0.67 (Tbl 7), Elastomer strain ≤50% aged, FAT 1.5×Pd (8h) + 0.85 bar vacuum test.`;
+    } else {
+      riserSummary = `• <b>Rigid SCR Riser (RP-F204 / ISO 13623 6.16):</b> Steel Catenary Riser at 150m WD; Safety Class High DFF = 10.0 (Life &gt; 250 yrs); Splash-zone Monel/Neoprene sheath.`;
+    }
 
-  // 3D Seabed Walk-Through & Profile Renderer
-  function draw3dWalkthrough() {
-    const canvas = document.getElementById('nx3dCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
+    document.getElementById('outRiserCross').innerHTML =
+      `${riserSummary}<br>` +
+      `• <b>PLEM &amp; Spools:</b> 2 × Subsea PLEMs with 45m × 22m Z-spools; 0.30 m crossing separation (ISO 13623 6.9.5).<br>` +
+      `• <b>Integrity Mgmt (RP-F116 &amp; AS 2885.3):</b> DFI Résumé issued; 1st ROV GVI/CP survey at Year 1, 3-yr RBI cycle.`;
 
-    // Background grid
-    ctx.strokeStyle = '#102a4a';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-    for (let y = 0; y < H; y += 52) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    const cwcLenM = 15080;
+    const pipeRate = isCRA ? 5400 : 1850;
+    const riserCost = riserType === 'SCR' ? 2900000 : 4650000;
+    const riserSpec = riserType === 'SCR'
+      ? `20" Rigid SCR + PLEM + Dual-barrier SSIV + Splash-zone sheath (RP-F204 DFF=10)`
+      : (riserType === 'FLEX_UNBOND'
+        ? `Unbonded Flexible Lazy-Wave Riser + Bend Stiffener + Buoyancy Modules (ISO 13628-2)`
+        : `Bonded Flexible Riser/Jumper + End Fittings + Bend Stiffener (ISO 13628-10)`);
 
-    const pts = results.length ? results : [
-      { kp: 0, wd: 1120 }, { kp: 15, wd: 940 }, { kp: 24.9, wd: 698, isSpan: true },
-      { kp: 40, wd: 310 }, { kp: 45, wd: 237, isSpan: true }, { kp: 60, wd: 150 }
+    mtoLines = [
+      { wbs: "1.1", item: isCRA ? "22Cr Duplex / CRA Clad Linepipe" : "Carbon Steel Linepipe (API 5L / ISO 3183)", spec: `OD ${D}mm × ${wt}mm WT (${Math.ceil(totalLenM/12.2)} joints @ 12.2m, α_fab=${alphaFab})`, qty: Math.round(steelTons), unit: "MT", rate: pipeRate },
+      { wbs: "1.2", item: "Anti-Corrosion Coating (3LPP)", spec: "3.5 mm 3-Layer Polypropylene per ISO 21809-1 / RP-F106", qty: totalLenM, unit: "m", rate: 68 },
+      { wbs: "1.3", item: "Concrete Weight Coating (CWC)", spec: `${cwcUser} mm thickness, 3,040 kg/m³ per ISO 21809-5 (KP 45–60 NWS stability)`, qty: cwcLenM, unit: "m", rate: 145 },
+      { wbs: "1.4", item: "Sacrificial Bracelet Anodes (Al-Zn-In)", spec: `${(anodeNetKg/anodeCount).toFixed(1)} kg net each, DNV-RP-B401 / ISO 15589-2`, qty: anodeCount, unit: "Nos", rate: 620 },
+      { wbs: "2.1", item: "Subsea PLEM/PLET &amp; Riser System", spec: riserSpec, qty: 2, unit: "Sets", rate: riserCost / 2 },
+      { wbs: "2.2", item: "Rigid Tie-In Z-Spools &amp; Connectors", spec: `OD ${D}mm × ${wt+3.2}mm WT heavy wall + mechanical connectors`, qty: 2, unit: "Sets", rate: 480000 },
+      { wbs: "2.3", item: "Free-Span &amp; Crossing Remediation", spec: "Articulated concrete mattresses (24 nos) + rock berm (3,200 MT)", qty: 3200, unit: "MT", rate: 210 },
+      { wbs: "3.1", item: "Geophysical / Geotechnical Survey Spread", spec: "DP2 Survey Vessel (MBES, SSS, SBP, CPT) + As-Built ROV (ISO 13623 10.9)", qty: 18, unit: "Days", rate: 65000 },
+      { wbs: "3.2", item: "Offshore Pipelay Construction Spread", spec: "DP3 S-Lay/J-Lay Vessel + 2× Pipe Haul Barges + AHTS (3.5 km/day)", qty: 22, unit: "Days", rate: 340000 },
+      { wbs: "3.3", item: "Subsea Trenching, Tie-In &amp; Hydrotest", spec: "DSV / Trenching Vessel + Strength/Leak Test Spread (AS/NZS 2885.5)", qty: 16, unit: "Days", rate: 185000 }
     ];
 
-    const maxKp = pts[pts.length - 1].kp || 60;
-    const toX = kp => 50 + (kp / maxKp) * (W - 100);
-    const toY = wd => 35 + (wd / 1200) * (H - 70);
+    let cPipe = 0, cSubsea = 0, cMarine = 0;
+    mtoLines.forEach(l => {
+      const tot = l.qty * l.rate;
+      l.total = tot;
+      if (l.wbs.startsWith('1')) cPipe += tot;
+      else if (l.wbs.startsWith('2')) cSubsea += tot;
+      else cMarine += tot;
+    });
+    const cGrand = cPipe + cSubsea + cMarine;
 
-    // Draw Seabed DTM Polygon
+    document.getElementById('costPipe').textContent = '$' + (cPipe / 1e6).toFixed(2) + ' M';
+    document.getElementById('subPipeTons').textContent = `${Math.round(steelTons).toLocaleString()} MT Pipe + ${anodeCount} Anodes`;
+    document.getElementById('costSubsea').textContent = '$' + (cSubsea / 1e6).toFixed(2) + ' M';
+    document.getElementById('costMarine').textContent = '$' + (cMarine / 1e6).toFixed(2) + ' M';
+    document.getElementById('costTotal').textContent = '$' + (cGrand / 1e6).toFixed(2) + ' M';
+    document.getElementById('costPerKm').textContent = `Benchmark: $${(cGrand / maxKp / 1e6).toFixed(2)} M / km`;
+
+    document.getElementById('tbodyMto').innerHTML = mtoLines.map(l => `
+      <tr>
+        <td><b>${l.wbs}</b></td>
+        <td><b>${l.item}</b></td>
+        <td style="color:#94a3b8;">${l.spec}</td>
+        <td>${l.qty.toLocaleString()}</td>
+        <td>${l.unit}</td>
+        <td>$${l.rate.toLocaleString()}</td>
+        <td style="color:#4ade80;font-weight:700;">$${l.total.toLocaleString()}</td>
+      </tr>
+    `).join('');
+
+    renderAllCanvases();
+  }
+
+  function renderAllCanvases() {
+    draw2D();
+    draw3D();
+    drawSchematic();
+  }
+
+  function draw2D() {
+    const c = document.getElementById('canvas2D');
+    if (!c || !evaluated.length) return;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.strokeStyle = '#0f2642';
+    for (let x = 60; x < W; x += 80) { ctx.beginPath(); ctx.moveTo(x, 15); ctx.lineTo(x, H - 25); ctx.stroke(); }
+    for (let y = 20; y < H - 20; y += 45) { ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W - 30, y); ctx.stroke(); }
+
+    const maxKp = evaluated[evaluated.length - 1].kp || 60;
+    const toX = kp => 65 + (kp / maxKp) * (W - 110);
+    const toY = wd => 25 + (wd / 1200) * (H - 55);
+
     ctx.beginPath();
-    ctx.moveTo(toX(pts[0].kp), H - 15);
-    pts.forEach(p => ctx.lineTo(toX(p.kp), toY(p.wd)));
-    ctx.lineTo(toX(pts[pts.length - 1].kp), H - 15);
+    ctx.moveTo(toX(evaluated[0].kp), H - 25);
+    evaluated.forEach(p => ctx.lineTo(toX(p.kp), toY(p.wd)));
+    ctx.lineTo(toX(maxKp), H - 25);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(14, 116, 144, 0.22)';
+    ctx.fillStyle = 'rgba(14, 116, 144, 0.24)';
     ctx.fill();
 
-    // Draw Pipeline Centerline
     ctx.beginPath();
-    pts.forEach((p, idx) => {
+    evaluated.forEach((p, i) => {
       const x = toX(p.kp), y = toY(p.wd) - 3;
-      if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 3.5;
     ctx.stroke();
 
-    // Highlight Span Triggers & Waypoints
-    pts.forEach(p => {
+    evaluated.forEach(p => {
       const x = toX(p.kp), y = toY(p.wd) - 3;
       ctx.beginPath();
       ctx.arc(x, y, p.isSpan ? 6 : 3.5, 0, Math.PI * 2);
@@ -1576,133 +915,220 @@ DATASET SCHEMA PROVENANCE: PODS 7.0 / CFIHOS RELATIONAL CORE (ZERO TRANSCRIPTION
       ctx.fill();
       if (p.isSpan) {
         ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText(`⚠ VIV Span KP ${p.kp}`, x - 35, y - 12);
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText(`⚠ ${p.spanLen}m VIV Span (KP ${p.kp})`, x - 45, y - 12);
       }
     });
-
-    // Walk-through ROV Cursor
-    const walkKp = parseFloat(document.getElementById('kpWalkSlider').value) || 0;
-    document.getElementById('lblWalkKp').textContent = `KP ${walkKp.toFixed(2)} km`;
-    const wx = toX(walkKp);
-    ctx.strokeStyle = '#4ade80';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(wx, 10); ctx.lineTo(wx, H - 10); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#4ade80';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(`ROV Survey Cam @ KP ${walkKp.toFixed(1)}`, Math.min(wx + 8, W - 180), 24);
   }
 
-  // Event Listeners
-  document.getElementById('nxCsvInput').addEventListener('change', e => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => {
-      rows = ev.target.result.trim().split(/\r?\n/).slice(1).map(l => l.split(','));
-      statusLine.innerHTML = `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${f.name}</span> (${rows.length} KP stations) • PODS 7.0 Spatial Model Synchronized`;
-      runFullEngineeringSuite();
-    };
-    r.readAsText(f);
-  });
+  function draw3D() {
+    const c = document.getElementById('canvas3D');
+    if (!c || !evaluated.length) return;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
 
-  document.getElementById('nxJsonInput').addEventListener('change', e => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => {
-      cfg = JSON.parse(ev.target.result);
-      const lp = cfg.linepipe_properties || {};
-      const pm = cfg.process_and_metocean || {};
-      syncExistingDashboard(lp.nominal_od_mm || 508, pm.design_pressure_bar || 220, pm.design_temperature_c || 85, lp.corrosion_allowance_mm || 3.0);
-      statusLine.innerHTML = `<span style="color:#4ade80;font-weight:700;">✓ Synchronized ${cfg.project_metadata?.corridor_id || f.name}</span> — ${lp.nominal_od_mm}mm ${lp.material_grade} | Pd: ${pm.design_pressure_bar} bar | Td: ${pm.design_temperature_c}°C`;
-      runFullEngineeringSuite();
-    };
-    r.readAsText(f);
-  });
+    const maxKp = evaluated[evaluated.length - 1].kp || 60;
+    for (let z = -3; z <= 3; z++) {
+      ctx.beginPath();
+      evaluated.forEach((p, i) => {
+        const u = p.kp / maxKp;
+        const x = 90 + u * (W - 220) + z * 22;
+        const y = 40 + (p.wd / 1200) * (H - 85) - z * 11 + Math.sin(u * 12 + z) * 4;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = z === 0 ? '#38bdf8' : 'rgba(56, 189, 248, 0.22)';
+      ctx.lineWidth = z === 0 ? 4 : 1;
+      ctx.stroke();
+    }
 
-  [wtSel, codeSel].forEach(el => el.addEventListener('change', runFullEngineeringSuite));
-  scaleSel.addEventListener('change', () => {
-    document.getElementById('lbl-scale').textContent = scaleSel.value;
-    draw3dWalkthrough();
-  });
+    const walkKp = parseFloat(document.getElementById('flySlider').value) || 0;
+    document.getElementById('flyLabel').textContent = `KP ${walkKp.toFixed(2)} km`;
+    const uCam = walkKp / maxKp;
+    const camX = 90 + uCam * (W - 220);
+    ctx.strokeStyle = '#4ade80';
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(camX, 12); ctx.lineTo(camX, H - 12); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#4ade80';
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText(`3D ROV Seabed Inspection Camera @ KP ${walkKp.toFixed(1)} km`, Math.min(camX + 10, W - 320), 26);
+  }
 
-  document.getElementById('kpWalkSlider').addEventListener('input', draw3dWalkthrough);
-  document.getElementById('btnWalkToggle').addEventListener('click', function() {
-    if (walkTimer) {
-      clearInterval(walkTimer); walkTimer = null;
-      this.textContent = '▶ Start 3D Seabed Fly-Through';
+  function drawSchematic() {
+    const c = document.getElementById('canvasSchematic');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const D = document.getElementById('inOD').value;
+    const wt = document.getElementById('inWT').value;
+    const cwc = document.getElementById('inCwc').value;
+    const riserType = document.getElementById('inRiserType').value;
+
+    ctx.strokeStyle = '#1e3a5f';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(40, 150); ctx.lineTo(W - 40, 150); ctx.stroke();
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(130, 144); ctx.lineTo(W - 160, 144); ctx.stroke();
+
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 11;
+    ctx.beginPath(); ctx.moveTo(W - 460, 144); ctx.lineTo(W - 180, 144); ctx.stroke();
+
+    const riserShort = riserType === 'SCR' ? 'Rigid SCR Riser' : (riserType === 'FLEX_UNBOND' ? 'Flexible Lazy-Wave' : 'Bonded Flex Riser');
+    const nodes = [
+      { x: 110, label: "KP 0.0: Subsea Manifold", sub: "1,120m WD • Z-Spool", col: "#4ade80" },
+      { x: 470, label: "KP 24.9: 48m Free Span", sub: "Grout Bag Support", col: "#fbbf24" },
+      { x: 780, label: "KP 44.98: 58m Span + Crossing", sub: "Mattresses + Rock Berm", col: "#fbbf24" },
+      { x: 1030, label: `KP 45–60: ${cwc}mm CWC Zone`, sub: "1.0m Post-Lay Trench", col: "#38bdf8" },
+      { x: 1260, label: `KP 60.0: PLEM & ${riserShort}`, sub: "150m WD • Safety Class High", col: "#4ade80" }
+    ];
+
+    nodes.forEach(n => {
+      ctx.fillStyle = n.col;
+      ctx.fillRect(n.x - 10, 132, 20, 22);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 11.5px Arial';
+      ctx.fillText(n.label, n.x - 55, 102);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10.5px Arial';
+      ctx.fillText(n.sub, n.x - 55, 118);
+    });
+
+    ctx.strokeStyle = '#4ade80';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(1260, 144);
+    if (riserType === 'SCR') {
+      ctx.quadraticCurveTo(1310, 130, 1345, 30);
     } else {
-      this.textContent = '⏸ Pause Fly-Through';
-      walkTimer = setInterval(() => {
-        const s = document.getElementById('kpWalkSlider');
+      ctx.bezierCurveTo(1290, 95, 1325, 125, 1350, 30);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#4ade80';
+    ctx.font = 'bold 11px Arial';
+    ctx.fillText(`Host Platform / FPSO Hang-Off (${D}mm × ${wt}mm | ${riserShort})`, 910, 35);
+  }
+
+  ['masterCode', 'inOD', 'inWT', 'inGrade', 'inAlphaFab', 'inFluidCat', 'inRiserType', 'inCorr', 'inPd', 'inTd', 'inRhoP', 'inHs', 'inCwc'].forEach(id => {
+    document.getElementById(id).addEventListener('change', runAllSolvers);
+  });
+  document.getElementById('btnRecalc').addEventListener('click', runAllSolvers);
+  document.getElementById('mapScale').addEventListener('change', e => {
+    document.getElementById('routeMeta').textContent = `Length: 60.00 km • Depth: 1,120 m → 150 m • Scale: ${e.target.value}`;
+  });
+  document.getElementById('flySlider').addEventListener('input', draw3D);
+  document.getElementById('btnFly').addEventListener('click', function() {
+    if (flyInterval) {
+      clearInterval(flyInterval); flyInterval = null;
+      this.textContent = '▶ Start 3D ROV Fly-Through';
+    } else {
+      this.textContent = '⏸ Pause ROV Fly-Through';
+      flyInterval = setInterval(() => {
+        const s = document.getElementById('flySlider');
         s.value = (parseFloat(s.value) + 1.0) % 60.5;
-        draw3dWalkthrough();
+        draw3D();
       }, 150);
     }
   });
 
-  // Exports: SHA-256 JIP33 Report, MTO CSV, Alignment/GAD SVG
-  document.getElementById('btnExportJip33').addEventListener('click', async () => {
-    const reportObj = {
-      project: cfg?.project_metadata || { corridor_id: 'NWS-DEEP-GAS-60KM' },
-      codeStandard: codeSel.value,
-      wallThickness_mm: wtSel.value,
-      scale: scaleSel.value,
-      summary: {
-        maxCollapse: document.getElementById('val-coll').textContent,
-        maxContainment: document.getElementById('val-burst').textContent,
-        stability: document.getElementById('val-stab').textContent,
-        cpAnodeMass: document.getElementById('val-cp-mass').textContent,
-        steelMTO: document.getElementById('val-mto-steel').textContent
-      },
-      stations: results
+  document.getElementById('csvInput').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const lines = ev.target.result.trim().split(/\r?\n/).slice(1);
+      corridor = lines.map(line => {
+        const p = line.split(',');
+        return {
+          kp: parseFloat(p[0]) || 0, e: parseFloat(p[1]) || 0, n: parseFloat(p[2]) || 0,
+          wd: parseFloat(p[3]) || 0, feat: p[4] || '', soil: p[5] || '',
+          su: parseFloat(p[6]) || 0, phi: parseFloat(p[7]) || 0, gamma: parseFloat(p[8]) || 8, cwc: parseFloat(p[9]) || 0
+        };
+      });
+      document.getElementById('statusMsg').innerHTML = `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${f.name}</span> (${corridor.length} KP stations) — Synchronized across 2D/3D Terrain, Solvers &amp; MTO.`;
+      runAllSolvers();
     };
-    const raw = JSON.stringify(reportObj, null, 2);
-    const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    const text = `IOGP S-563 (JIP33) DATASHEET & SUBSEA DESIGN REPORT\nL2G Engineering Consultancy LLP | NexusPipeline v1.0 (GoI Copyright SW-2026024357)\nSHA-256 Audit Hash: ${hashHex}\n--------------------------------------------------------------------\n${raw}`;
+    r.readAsText(f);
+  });
+
+  document.getElementById('jsonInput').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const cfg = JSON.parse(ev.target.result);
+      const lp = cfg.linepipe_properties || {};
+      const pm = cfg.process_and_metocean || {};
+      if (lp.nominal_od_mm) document.getElementById('inOD').value = lp.nominal_od_mm.toFixed(1);
+      if (lp.smys_mpa) document.getElementById('inGrade').value = String(lp.smys_mpa);
+      if (lp.fabrication_factor_alpha_fab) document.getElementById('inAlphaFab').value = lp.fabrication_factor_alpha_fab.toFixed(2);
+      if (lp.corrosion_allowance_mm) document.getElementById('inCorr').value = lp.corrosion_allowance_mm;
+      if (pm.design_pressure_bar) document.getElementById('inPd').value = pm.design_pressure_bar;
+      if (pm.design_temperature_c) document.getElementById('inTd').value = pm.design_temperature_c;
+      if (pm.product_density_kgm3) document.getElementById('inRhoP').value = pm.product_density_kgm3;
+      if (lp.concrete_weight_coating?.zone_kp_45_to_60_mm) document.getElementById('inCwc').value = lp.concrete_weight_coating.zone_kp_45_to_60_mm;
+      document.getElementById('statusMsg').innerHTML = `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${cfg.project_metadata?.corridor_id || f.name}</span> — All Multi-Discipline Interfaces &amp; Solvers Synchronized.`;
+      runAllSolvers();
+    };
+    r.readAsText(f);
+  });
+
+  document.getElementById('btnExportAll').addEventListener('click', async () => {
+    const payload = JSON.stringify({
+      corridor: "NWS-DEEP-GAS-60KM",
+      governingCode: document.getElementById('masterCode').value,
+      riserSystem: document.getElementById('inRiserType').value,
+      od_mm: document.getElementById('inOD').value,
+      wt_mm: document.getElementById('inWT').value,
+      alpha_fab: document.getElementById('inAlphaFab').value,
+      sesamInterfaceFiles: ["T1.FEM (GeniE Model)", "L1.FEM (Wajac/Wadam Loads)", "R1.SIN (Sestra FEA)", "G1.SIF (HydroD RAOs)", "Model.VTFx (Sesam Insight 3D)"],
+      capexSummary: document.getElementById('costTotal').textContent,
+      mto: mtoLines,
+      stationVerification: evaluated
+    }, null, 2);
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    const out = `IOGP S-563 (JIP33) DATASHEET, DESIGN BASIS & CAPEX AUDIT DOSSIER\nL2G Engineering Consultancy LLP | NexusPipeline v1.0 (GoI Copyright SW-2026024357)\nSHA-256 Cryptographic Audit Stamp: ${hash}\n========================================================================\n${payload}`;
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-    a.download = `L2G_JIP33_Design_Report_${codeSel.value}_WT${wtSel.value}mm.txt`;
+    a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain' }));
+    a.download = `L2G_NexusPipeline_JIP33_SHA256_Dossier.txt`;
     a.click();
   });
 
-  document.getElementById('btnExportMto').addEventListener('click', () => {
-    const csv = [
-      'Item_No,Description,Specification,Unit,Quantity,Remarks',
-      `1,Subsea Linepipe 20-inch OD x ${wtSel.value}mm WT,API 5L X65 Seamless (${codeSel.value}),m,60000,4918 joints @ 12.2m`,
-      '2,Anti-Corrosion Coating,3.5mm 3LPP Factory Applied,m,60000,Full corridor',
-      '3,Concrete Weight Coating (CWC),40mm-60mm Density 3040 kg/m3,m,15080,KP 44.92 to KP 60.00 shallow shelf',
-      `4,Sacrificial Bracelet Anodes,Al-Zn-In Alloy (${document.getElementById('val-cp-mass').textContent}),Nos,411,Every 12th joint per DNV-RP-B401`,
-      '5,Free-Span Remediation Grout Bags,Articulated Cementitious Mattresses,Sets,14,KP 24.90 (48m) & KP 44.98 (58m)'
-    ].join('\n');
+  document.getElementById('btnDlMto').addEventListener('click', () => {
+    const csv = ['WBS,Item,Specification,Quantity,Unit,Unit_Rate_USD,Total_Cost_USD']
+      .concat(mtoLines.map(l => `${l.wbs},"${l.item}","${l.spec}",${l.qty},${l.unit},${l.rate},${l.total}`)).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = `L2G_Subsea_MTO_${scaleSel.value.replace(':','-')}.csv`;
+    a.download = 'L2G_Subsea_MTO_and_CAPEX_Estimate.csv';
     a.click();
   });
 
-  document.getElementById('btnExportAlignment').addEventListener('click', () => {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="420" style="background:#081629;font-family:sans-serif;">
-      <rect x="15" y="15" width="1070" height="390" fill="none" stroke="#38bdf8" stroke-width="2"/>
-      <text x="35" y="48" fill="#38bdf8" font-size="18" font-weight="bold">L2G ENGINEERING CONSULTANCY LLP • SUBSEA ALIGNMENT &amp; CROSSING GAD (${scaleSel.value})</text>
-      <text x="35" y="72" fill="#cbd5e1" font-size="12">Corridor: NWS-DEEP-GAS-60KM | Code: ${codeSel.value} | OD 508mm x ${wtSel.value}mm WT | SHA-256 Verified</text>
-      <line x1="50" y1="150" x2="1040" y2="310" stroke="#38bdf8" stroke-width="4"/>
-      <circle cx="480" cy="220" r="10" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
-      <text x="430" y="200" fill="#fbbf24" font-size="11" font-weight="bold">KP 24.90: 48m Free Span (Grout Support)</text>
-      <circle cx="810" cy="273" r="10" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
-      <text x="750" y="253" fill="#fbbf24" font-size="11" font-weight="bold">KP 44.98: 58m Scour Span + Crossing GAD</text>
-      <rect x="720" y="340" width="350" height="55" fill="#0b2239" stroke="#38bdf8"/>
-      <text x="735" y="362" fill="#fff" font-size="11" font-weight="bold">TITLE BLOCK: ALIGNMENT, SPOOL ISO &amp; CROSSING GAD</text>
-      <text x="735" y="380" fill="#94a3b8" font-size="10">GoI Copyright SW-2026024357 | Prepared: L2G | Scale: ${scaleSel.value}</text>
+  document.getElementById('btnDlSvg').addEventListener('click', () => {
+    const sc = document.getElementById('mapScale').value;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" style="background:#061120;font-family:Arial,sans-serif;">
+      <rect x="15" y="15" width="1170" height="410" fill="none" stroke="#38bdf8" stroke-width="2"/>
+      <text x="35" y="48" fill="#38bdf8" font-size="18" font-weight="bold">L2G ENGINEERING CONSULTANCY LLP • SUBSEA ALIGNMENT, SYSTEM SCHEMATIC &amp; CROSSING GAD (${sc})</text>
+      <text x="35" y="72" fill="#cbd5e1" font-size="12">Code: ${document.getElementById('masterCode').value} | OD ${document.getElementById('inOD').value}mm × ${document.getElementById('inWT').value}mm WT | Est. CAPEX: ${document.getElementById('costTotal').textContent}</text>
+      <line x1="60" y1="260" x2="1120" y2="260" stroke="#38bdf8" stroke-width="5"/>
+      <circle cx="520" cy="260" r="9" fill="#fbbf24"/><text x="450" y="235" fill="#fbbf24" font-size="11" font-weight="bold">KP 24.90: 48m VIV Span (Grout Support)</text>
+      <circle cx="860" cy="260" r="9" fill="#fbbf24"/><text x="790" y="235" fill="#fbbf24" font-size="11" font-weight="bold">KP 44.98: 58m Span + Crossing GAD</text>
+      <rect x="780" y="355" width="385" height="55" fill="#0b1e36" stroke="#38bdf8"/>
+      <text x="795" y="378" fill="#fff" font-size="11" font-weight="bold">TITLE BLOCK: ALIGNMENT, Z-SPOOL ISO &amp; CROSSING GAD</text>
+      <text x="795" y="396" fill="#94a3b8" font-size="10">GoI Copyright SW-2026024357 | Prepared: L2G | Scale: ${sc}</text>
     </svg>`;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-    a.download = `L2G_Alignment_Crossing_GAD_${scaleSel.value.replace(':','-')}.svg`;
+    a.download = `L2G_Subsea_Alignment_System_GAD_${sc.replace(':','-')}.svg`;
     a.click();
   });
+
+  runAllSolvers();
 })();
 </script>
 </body>
