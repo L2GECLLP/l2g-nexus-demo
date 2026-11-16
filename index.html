@@ -1178,6 +1178,8 @@
       const cfg = JSON.parse(ev.target.result);
       const lp = cfg.linepipe_properties || {};
       const pm = cfg.process_and_metocean || {};
+      if (cfg.project_metadata?.composite_architecture) document.getElementById('inCompositeArch').value = cfg.project_metadata.composite_architecture;
+      if (cfg.riser_system_properties?.riser_wt_mm) document.getElementById('inRiserWT').value = cfg.riser_system_properties.riser_wt_mm.toFixed(1);   
       if (lp.nominal_od_mm) document.getElementById('inOD').value = lp.nominal_od_mm.toFixed(1);
       if (lp.smys_mpa) document.getElementById('inGrade').value = String(lp.smys_mpa);
       if (lp.fabrication_factor_alpha_fab) document.getElementById('inAlphaFab').value = lp.fabrication_factor_alpha_fab.toFixed(2);
