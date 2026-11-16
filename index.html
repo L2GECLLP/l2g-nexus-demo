@@ -33,7 +33,7 @@
     background: linear-gradient(90deg, #091d36 0%, #0e294b 100%);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 14px 20px;
+    padding: 12px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -41,17 +41,42 @@
     gap: 12px;
     margin-bottom: 14px;
   }
-  .brand h1 { font-size: 16.5px; color: var(--cyan); letter-spacing: 0.5px; }
+  .brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+  }
+  .logo-badge {
+    background: #ffffff;
+    border: 2px solid #38bdf8;
+    border-radius: 8px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 66px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  .logo-badge span {
+    font-size: 9px;
+    font-weight: 800;
+    color: #0b2948;
+    letter-spacing: 0.6px;
+    line-height: 1;
+    margin-top: 1px;
+  }
+  .brand h1 { font-size: 16px; color: var(--cyan); letter-spacing: 0.5px; }
   .brand p { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .top-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .top-controls { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
 
   .btn {
     background: var(--blue);
     color: #fff;
     border: none;
-    padding: 7px 12px;
+    padding: 7px 11px;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     cursor: pointer;
     display: inline-flex;
@@ -61,6 +86,7 @@
   .btn:hover { filter: brightness(1.12); }
   .btn.teal { background: var(--teal); }
   .btn.amber { background: #b45309; }
+  .btn.purple { background: #6d28d9; }
   .btn.ghost { background: #0f2540; border: 1px solid #2b4c77; color: #e2e8f0; }
 
   select, input[type="number"], input[type="text"] {
@@ -91,23 +117,23 @@
 
   .nav-tabs {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
     margin-bottom: 16px;
   }
-  @media (max-width: 900px) { .nav-tabs { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 1050px) { .nav-tabs { grid-template-columns: repeat(2, 1fr); } }
   .nav-tab {
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--muted);
-    padding: 10px 14px;
+    padding: 10px 12px;
     border-radius: 8px;
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     text-align: left;
   }
-  .nav-tab span { display: block; font-size: 10.5px; font-weight: 400; color: #7dd3fc; margin-top: 2px; }
+  .nav-tab span { display: block; font-size: 10px; font-weight: 400; color: #7dd3fc; margin-top: 2px; }
   .nav-tab.active {
     background: linear-gradient(135deg, #0369a1 0%, #0b2948 100%);
     border-color: var(--cyan);
@@ -138,7 +164,8 @@
     gap: 8px;
   }
   .grid-2 { display: grid; grid-template-columns: 410px 1fr; gap: 14px; }
-  @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+  .grid-2-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 1024px) { .grid-2, .grid-2-eq { grid-template-columns: 1fr; } }
   .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 14px; }
   .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; }
 
@@ -202,17 +229,64 @@
   .disc-io { font-size: 11px; color: #cbd5e1; margin-bottom: 4px; }
   .disc-io b { color: #94a3b8; }
 
+  .code-viewer {
+    background: #040c18;
+    border: 1px solid #1e3a5f;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 11.5px;
+    color: #e2e8f0;
+    max-height: 440px;
+    overflow: auto;
+    white-space: pre;
+    line-height: 1.42;
+  }
+
   canvas { display: block; width: 100%; background: #050f1d; border: 1px solid var(--border); border-radius: 8px; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- TOP COMMAND BAR -->
+  <!-- TOP COMMAND BAR WITH EMBEDDED L2G CORPORATE LOGO ON LHS -->
   <header class="topbar">
-    <div class="brand">
-      <h1>L2G NEXUSPIPELINE v1.0 • COMPOSITE SUBSEA PIPELINE &amp; DEEPWATER RISER SUITE</h1>
-      <p>PODS 7.0 / CFIHOS / DNV Sesam Interface Kernel • GoI Copyright Reg. SW-2026024357 • LLPIN: ADA-7662 | DIPP279818</p>
+    <div class="brand-wrap">
+      <div class="logo-badge" title="L2G Engineering Consultancy LLP">
+        <!-- High-Precision Vector Emblem Matching L2G Enhanced 3D Cube & Pipeline Arrows -->
+        <svg width="46" height="40" viewBox="0 0 120 105" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="l2gBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e4e8c"/>
+              <stop offset="100%" stop-color="#0b2948"/>
+            </linearGradient>
+          </defs>
+          <!-- Green & Orange Outer Orbit Arcs -->
+          <path d="M 60 8 C 94 4, 114 32, 96 62" fill="none" stroke="#65a30d" stroke-width="5.5" stroke-linecap="round"/>
+          <path d="M 52 14 C 84 10, 104 34, 88 58" fill="none" stroke="#f97316" stroke-width="5.5" stroke-linecap="round"/>
+          <!-- Isometric Hexagonal Engineering Cube -->
+          <polygon points="56,16 94,37 94,79 56,100 18,79 18,37" fill="url(#l2gBlue)" stroke="#0f294a" stroke-width="2"/>
+          <!-- Diagonal Orange Pipeline Flow Channel -->
+          <polyline points="20,76 56,57 56,44 88,27" fill="none" stroke="#f97316" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Rising Pipeline Arrows -->
+          <path d="M 46 34 Q 58 26 68 16 M 62 16 L 69 15 L 68 22" fill="none" stroke="#93c5fd" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M 58 40 Q 70 32 82 22 M 76 22 L 83 21 L 82 28" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- Telemetry & Subsea Node Network Dots -->
+          <circle cx="34" cy="44" r="4" fill="none" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="46" cy="36" r="3.5" fill="none" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="34" cy="60" r="4" fill="none" stroke="#ffffff" stroke-width="2"/>
+          <line x1="37" y1="42" x2="43" y2="38" stroke="#ffffff" stroke-width="1.8"/>
+          <line x1="34" y1="48" x2="34" y2="56" stroke="#ffffff" stroke-width="1.8"/>
+          <circle cx="72" cy="68" r="3" fill="#ffffff"/>
+          <circle cx="82" cy="74" r="3" fill="#ffffff"/>
+          <line x1="74" y1="69" x2="80" y2="73" stroke="#ffffff" stroke-width="1.8"/>
+        </svg>
+        <span>L2G EC LLP</span>
+      </div>
+      <div class="brand">
+        <h1>L2G NEXUSPIPELINE v1.0 • COMPOSITE SUBSEA PIPELINE &amp; DEEPWATER RISER SUITE</h1>
+        <p>PODS 7.0 / CFIHOS / DNV Sesam Interface Kernel • GoI Copyright Reg. SW-2026024357 • LLPIN: ADA-7662 | DIPP279818</p>
+      </div>
     </div>
     <div class="top-controls">
       <select id="masterCode" class="master-code" title="Single Governing Code Regime">
@@ -222,13 +296,15 @@
         <option value="API1111">Code: API RP 1111 / API RP 2RD Deepwater Riser</option>
       </select>
       <label class="btn">
-        Import Corridor CSV
+        Import CSV
         <input type="file" id="csvInput" accept=".csv" style="display:none;" />
       </label>
       <label class="btn teal">
-        Import Design JSON
+        Import JSON
         <input type="file" id="jsonInput" accept=".json" style="display:none;" />
       </label>
+      <button class="btn ghost" id="btnExportJson">Export JSON</button>
+      <button class="btn purple" id="btnPrintPdfReport" title="Generate Print-Ready PDF Engineering Calculation Report & Alignment Drawings">Print Calc &amp; Alignment PDF</button>
       <button class="btn amber" id="btnExportAll">Export JIP33 + SHA-256</button>
     </div>
   </header>
@@ -238,31 +314,35 @@
     <div id="statusMsg">Active Composite Field System: <b>NWS-DEEP-GAS-60KM Subsea Trunkline (1,120m→150m WD) + Coupled Dynamic Riser to FPSO/Platform</b> — Ready.</div>
     <div>
       Drawing Scale:
-      <select id="mapScale">
-        <option value="1:5,000">1:5,000</option>
-        <option value="1:10,000" selected>1:10,000</option>
-        <option value="1:25,000">1:25,000</option>
+      <select id="mapScale" title="Dynamically zooms 2D/3D alignment viewports and PDF/SVG GAD output">
+        <option value="1:5,000">1:5,000 (2.0x Detailed Zoom)</option>
+        <option value="1:10,000" selected>1:10,000 (1.0x Standard Sheet)</option>
+        <option value="1:25,000">1:25,000 (0.5x Regional Overview)</option>
       </select>
     </div>
   </div>
 
-  <!-- 4-STAGE LOGICAL EPC ENGINEERING WORKFLOW TABS -->
+  <!-- 5-STAGE LOGICAL EPC ENGINEERING & DATABASE WORKFLOW TABS -->
   <nav class="nav-tabs">
     <button class="nav-tab active" data-mod="mod-basis">
       1. Composite Design Basis &amp; I/O
-      <span>Subsea Pipeline + Deepwater Riser Sizing &amp; 9 Discipline Interfaces</span>
+      <span>Subsea Pipeline + Riser Sizing &amp; 9 Interfaces</span>
     </button>
     <button class="nav-tab" data-mod="mod-route">
       2. Seabed Route &amp; Riser 2D/3D Twin
-      <span>Subsea Bathymetry Draping + Water-Column Riser Catenary/Lazy-Wave</span>
+      <span>Bathymetry Draping + Riser Catenary/Lazy-Wave</span>
     </button>
     <button class="nav-tab" data-mod="mod-calc">
       3. Coupled Limit-State Verification
-      <span>Subsea Pipeline (F101/F109/F105) + Deepwater Riser (F204/ISO 13628)</span>
+      <span>F101/F109/F105 Pipeline + F204/ISO 13628 Riser</span>
     </button>
     <button class="nav-tab" data-mod="mod-system">
       4. Composite Schematic, MTO &amp; CAPEX
-      <span>Subsea Trunkline + PLEM + Riser Architecture, MTO &amp; Spread Costing</span>
+      <span>System Architecture, MTO, GAD &amp; Spread Costing</span>
+    </button>
+    <button class="nav-tab" data-mod="mod-etl">
+      5. PODS 7.0 / CFIHOS ETL &amp; DB Sync
+      <span>SHA-256 Verification &amp; Embedded Python ETL</span>
     </button>
   </nav>
 
@@ -271,7 +351,6 @@
   <!-- ===================================================================== -->
   <section id="mod-basis" class="module active">
     <div class="grid-2">
-      <!-- Left: Master Design Basis Inputs (Composite Subsea Pipeline + Riser) -->
       <div class="card">
         <div class="card-title">
           <span>Composite System Design Basis</span>
@@ -368,7 +447,6 @@
         </div>
       </div>
 
-      <!-- Right: Multi-Disciplinary Inputs Received & Deliverables Issued -->
       <div class="card">
         <div class="card-title">
           <span>Composite Pipeline + Riser Interface Register (PODS / CFIHOS / DNV Sesam Sync)</span>
@@ -432,14 +510,14 @@
     <div class="card">
       <div class="card-title">
         <span>2D Composite Elevation Profile: Subsea Pipeline (KP 0–60 km) + Coupled Deepwater Riser (150m WD → Topside)</span>
-        <span id="routeMeta" style="font-size:11px;color:#e2e8f0;">Subsea Line: 60.00 km (1,120m→150m) + Riser: 245m Arc • Scale: 1:10,000</span>
+        <span id="routeMeta" style="font-size:11px;color:#e2e8f0;">Subsea Line: 60.00 km (1,120m→150m) + Riser: 245m Arc • Scale: 1:10,000 (1.0x Standard Sheet)</span>
       </div>
       <canvas id="canvas2D" width="1400" height="255" style="height:255px;"></canvas>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <span>3D Seabed Corridor &amp; Water-Column Riser Digital Twin Walk-Through</span>
+        <span>3D Seabed Corridor &amp; Water-Column Riser Digital Twin Walk-Through (Pan/Zoom via ROV Slider &amp; Drawing Scale)</span>
         <div style="display:flex;gap:10px;align-items:center;">
           <button class="btn" id="btnFly" style="padding:4px 10px;font-size:11px;">▶ Start 3D ROV Inspection</button>
           <input type="range" id="flySlider" min="0" max="62" step="0.5" value="0" style="width:200px;" />
@@ -526,7 +604,7 @@
     <div class="card">
       <div class="card-title">
         <span>Composite Subsea Pipeline &amp; Deepwater Riser Architecture Schematic (End-to-End Field Layout)</span>
-        <span style="font-size:11px;color:#38bdf8;">Subsea Manifold (KP 0) → 60 km Trunkline → PLEM &amp; Z-Spool → Dynamic Riser → Host Topside</span>
+        <span id="schemScaleBadge" style="font-size:11px;color:#38bdf8;">Scale 1:10,000 • Subsea Manifold (KP 0) → 60 km Trunkline → PLEM &amp; Z-Spool → Dynamic Riser → Host Topside</span>
       </div>
       <canvas id="canvasSchematic" width="1400" height="230" style="height:230px;"></canvas>
     </div>
@@ -557,9 +635,10 @@
     <div class="card">
       <div class="card-title">
         <span>Composite Procurement MTO (Subsea Pipeline + Deepwater Riser) &amp; Marine Spread Estimate</span>
-        <div style="display:flex;gap:8px;">
-          <button class="btn" id="btnDlMto">Download Composite MTO CSV</button>
-          <button class="btn teal" id="btnDlSvg">Download Pipeline + Riser GAD (.svg)</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn" id="btnDlMto">Download MTO CSV</button>
+          <button class="btn purple" id="btnPrintDrawingPdf">Print Alignment &amp; GAD PDF</button>
+          <button class="btn teal" id="btnDlSvg">Download GAD (.svg)</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -581,10 +660,268 @@
     </div>
   </section>
 
+  <!-- ===================================================================== -->
+  <!-- MODULE 5: PODS 7.0 / CFIHOS ETL & EMBEDDED PYTHON INGESTION SCRIPT    -->
+  <!-- ===================================================================== -->
+  <section id="mod-etl" class="module">
+    <div class="grid-4">
+      <div class="kpi">
+        <div class="kpi-lbl">Live SHA-256 Audit Stamp</div>
+        <div class="kpi-val" id="etlHashShort" style="font-size:14px;color:#4ade80;font-family:Consolas,monospace;">—</div>
+        <div class="kpi-sub">Deterministic Payload Tamper Seal</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">PODS 7.0 Relational Rows</div>
+        <div class="kpi-val" id="etlPodsRows" style="color:#38bdf8;">—</div>
+        <div class="kpi-sub">LINE_LOOP + ROUTE_EVENT + SPAN_EVENT</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">CFIHOS / JIP33 S-563 Items</div>
+        <div class="kpi-val" id="etlCfihosRows" style="color:#38bdf8;">10 Packages</div>
+        <div class="kpi-sub">Procurement BOM &amp; Sesam T#.FEM Links</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Database Ingestion Gate</div>
+        <div class="kpi-val" style="font-size:15px;color:#4ade80;">VERIFIED • READY</div>
+        <div class="kpi-sub">SQLite / PostgreSQL PostGIS / SQL Server</div>
+      </div>
+    </div>
+
+    <div class="grid-2-eq">
+      <!-- Left: Embedded Python ETL Script Viewer & Download -->
+      <div class="card">
+        <div class="card-title">
+          <span>Embedded Python ETL &amp; PODS 7.0 / CFIHOS Script (pods_jip33_etl.py)</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn ghost" id="btnCopyPy" style="padding:4px 9px;font-size:11px;">Copy Script</button>
+            <button class="btn teal" id="btnDlPy" style="padding:4px 9px;font-size:11px;">Download pods_jip33_etl.py</button>
+          </div>
+        </div>
+        <div class="code-viewer" id="pyCodeBox"></div>
+      </div>
+
+      <!-- Right: Live PODS 7.0 & CFIHOS Relational Staging Table Preview -->
+      <div class="card">
+        <div class="card-title">
+          <span>Live PODS 7.0 Linear Referencing Staging Table Preview (PODS_ROUTE_EVENT)</span>
+          <span class="badge b-pass" id="etlFullHashBadge">SHA-256: —</span>
+        </div>
+        <div class="table-wrap" style="max-height:440px;">
+          <table>
+            <thead>
+              <tr>
+                <th>LINE_ID</th>
+                <th>KP_KM</th>
+                <th>SYSTEM_ZONE</th>
+                <th>EASTING / NORTHING</th>
+                <th>WD (m)</th>
+                <th>COLL / BURST</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPodsPreview"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script>
 (function() {
+  const PYTHON_ETL_SCRIPT = `import hashlib
+import json
+import sqlite3  # Swap with pyodbc / psycopg2 for SQL Server / PostGIS
+from datetime import datetime, timezone
+
+DOSSIER_FILE = "L2G_Composite_Pipeline_Riser_JIP33_SHA256.txt"
+DB_FILE = "L2G_PODS7_CFIHOS_Enterprise.db"
+
+
+class SecurityError(Exception):
+    pass
+
+
+def parse_and_verify_dossier(filepath: str) -> tuple[str, dict]:
+    """Parses exported JIP33 + SHA-256 dossier and verifies integrity."""
+    with open(filepath, "r", encoding="utf-8") as f:
+        raw_text = f.read()
+
+    lines = raw_text.splitlines()
+    stamped_hash = None
+    sep_idx = None
+
+    for idx, line in enumerate(lines):
+        if line.startswith("SHA-256 Cryptographic Audit Stamp:"):
+            stamped_hash = line.split(":", 1)[1].strip()
+        if line.startswith("===="):
+            sep_idx = idx
+            break
+
+    if not stamped_hash or sep_idx is None:
+        raise ValueError("Invalid dossier: missing SHA-256 stamp.")
+
+    json_payload_str = "\\n".join(lines[sep_idx + 1 :])
+    computed_hash = hashlib.sha256(json_payload_str.encode("utf-8")).hexdigest()
+
+    if computed_hash != stamped_hash:
+        raise SecurityError(
+            f"TAMPER ALERT: SHA-256 mismatch!\\nStamped : {stamped_hash}\\nComputed: {computed_hash}"
+        )
+
+    print(f"[OK] SHA-256 Verified: {computed_hash}")
+    return computed_hash, json.loads(json_payload_str)
+
+
+def init_pods7_cfihos_schema(conn: sqlite3.Connection) -> None:
+    """Creates PODS 7.0 Linear Referencing & CFIHOS JIP33 tables."""
+    cur = conn.cursor()
+    cur.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS PODS_LINE_LOOP (
+            line_id TEXT PRIMARY KEY,
+            governing_code TEXT,
+            composite_arch TEXT,
+            od_mm REAL,
+            pipe_wt_mm REAL,
+            riser_wt_mm REAL,
+            capex_summary TEXT,
+            sha256_audit_stamp TEXT NOT NULL,
+            ingested_utc TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS PODS_ROUTE_EVENT (
+            event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            line_id TEXT NOT NULL,
+            kp_km REAL NOT NULL,
+            system_zone TEXT,
+            easting_m REAL,
+            northing_m REAL,
+            water_depth_m REAL,
+            geotech_soil TEXT,
+            feature_desc TEXT,
+            cwc_mm REAL,
+            collapse_util REAL,
+            burst_util REAL,
+            comb_lc_util REAL,
+            specific_gravity REAL,
+            compliance_status TEXT,
+            UNIQUE(line_id, kp_km)
+        );
+        CREATE TABLE IF NOT EXISTS PODS_SPAN_EVENT (
+            span_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            line_id TEXT NOT NULL,
+            kp_km REAL NOT NULL,
+            span_length_m REAL,
+            remediation_spec TEXT,
+            UNIQUE(line_id, kp_km)
+        );
+        CREATE TABLE IF NOT EXISTS CFIHOS_JIP33_MTO (
+            mto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            line_id TEXT NOT NULL,
+            wbs_code TEXT NOT NULL,
+            item_name TEXT,
+            jip33_spec TEXT,
+            quantity REAL,
+            uom TEXT,
+            unit_rate_usd REAL,
+            total_cost_usd REAL,
+            UNIQUE(line_id, wbs_code)
+        );
+        """
+    )
+    conn.commit()
+
+
+def ingest_to_database(sha256_stamp: str, data: dict, db_path: str) -> None:
+    """Upserts verified NexusPipeline outputs into PODS 7.0 & CFIHOS."""
+    conn = sqlite3.connect(db_path)
+    init_pods7_cfihos_schema(conn)
+    cur = conn.cursor()
+
+    line_id = data.get("corridor", "NWS-COMPOSITE-60KM")
+    now_utc = datetime.now(timezone.utc).isoformat()
+
+    cur.execute(
+        """
+        INSERT INTO PODS_LINE_LOOP (
+            line_id, governing_code, composite_arch, od_mm, pipe_wt_mm,
+            riser_wt_mm, capex_summary, sha256_audit_stamp, ingested_utc
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(line_id) DO UPDATE SET
+            governing_code=excluded.governing_code,
+            composite_arch=excluded.composite_arch,
+            od_mm=excluded.od_mm,
+            pipe_wt_mm=excluded.pipe_wt_mm,
+            riser_wt_mm=excluded.riser_wt_mm,
+            capex_summary=excluded.capex_summary,
+            sha256_audit_stamp=excluded.sha256_audit_stamp,
+            ingested_utc=excluded.ingested_utc
+        """,
+        (
+            line_id, data.get("governingCode"), data.get("compositeArchitecture"),
+            float(data.get("od_mm", 0)), float(data.get("subseaPipelineWT_mm", 0)),
+            float(data.get("deepwaterRiserWT_mm", 0)), data.get("capexSummary"),
+            sha256_stamp, now_utc,
+        ),
+    )
+
+    for st in data.get("stationVerification", []):
+        cur.execute(
+            """
+            INSERT INTO PODS_ROUTE_EVENT (
+                line_id, kp_km, system_zone, easting_m, northing_m, water_depth_m,
+                geotech_soil, feature_desc, cwc_mm, collapse_util, burst_util,
+                comb_lc_util, specific_gravity, compliance_status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(line_id, kp_km) DO UPDATE SET
+                collapse_util=excluded.collapse_util,
+                burst_util=excluded.burst_util,
+                compliance_status=excluded.compliance_status
+            """,
+            (
+                line_id, st.get("kp"), st.get("zone"), st.get("e"), st.get("n"),
+                st.get("wd"), st.get("soil"), st.get("feat"), st.get("cwc"),
+                st.get("collUtil"), st.get("burstUtil"), st.get("combUtil"),
+                st.get("sg"), "PASS" if st.get("ok") else "REVISE",
+            ),
+        )
+        if st.get("isSpan"):
+            cur.execute(
+                """
+                INSERT INTO PODS_SPAN_EVENT (line_id, kp_km, span_length_m, remediation_spec)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(line_id, kp_km) DO UPDATE SET span_length_m=excluded.span_length_m
+                """,
+                (line_id, st.get("kp"), st.get("spanLen"), "Grout Bag / Mattress Support (RP-F105)"),
+            )
+
+    for item in data.get("mto", []):
+        cur.execute(
+            """
+            INSERT INTO CFIHOS_JIP33_MTO (
+                line_id, wbs_code, item_name, jip33_spec, quantity, uom, unit_rate_usd, total_cost_usd
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(line_id, wbs_code) DO UPDATE SET total_cost_usd=excluded.total_cost_usd
+            """,
+            (
+                line_id, item.get("wbs"), item.get("item"), item.get("spec"),
+                item.get("qty"), item.get("unit"), item.get("rate"), item.get("total"),
+            ),
+        )
+
+    conn.commit()
+    conn.close()
+    print(f"[OK] Committed to {db_path}")
+
+
+if __name__ == "__main__":
+    stamp, payload = parse_and_verify_dossier(DOSSIER_FILE)
+    ingest_to_database(stamp, payload, DB_FILE)
+`;
+
+  document.getElementById('pyCodeBox').textContent = PYTHON_ETL_SCRIPT;
+
   let corridor = [
     { kp: 0.00, zone: "Subsea Pipeline", e: 342100, n: 7795200, wd: 1120.0, feat: "Subsea Manifold Tie-In", soil: "Soft Calcareous Clay", cwc: 0 },
     { kp: 5.00, zone: "Subsea Pipeline", e: 344800, n: 7799350, wd: 1085.0, feat: "Abyssal Plain", soil: "Soft Calcareous Clay", cwc: 0 },
@@ -609,9 +946,12 @@
     { kp: 60.24, zone: "Deepwater Riser", e: 374680, n: 7845150, wd: 0.0, feat: "Splash Zone & Topside Hang-Off (+25m)", soil: "FPSO / Platform", cwc: 0 }
   ];
 
+  let activeCorridorId = "NWS-COMPOSITE-60KM-SCR-V1";
   let evaluated = [];
   let mtoLines = [];
   let flyInterval = null;
+  let lastPcPipeBar = 0;
+  let lastPcRiserBar = 0;
 
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -623,6 +963,16 @@
     });
   });
 
+  function getScaleConfig() {
+    const val = document.getElementById('mapScale').value;
+    if (val === '1:5,000') {
+      return { label: '1:5,000', desc: '2.0x Detailed Zoom', zoom: 2.0, barText: 'Scale 1:5,000 (1 div = 2.5 km)' };
+    } else if (val === '1:25,000') {
+      return { label: '1:25,000', desc: '0.5x Regional Overview', zoom: 0.55, barText: 'Scale 1:25,000 (Regional Corridor Overview)' };
+    }
+    return { label: '1:10,000', desc: '1.0x Standard Sheet', zoom: 1.0, barText: 'Scale 1:10,000 (1 div = 5.0 km)' };
+  }
+
   function solveCollapsePc(D, t, fy, E_mpa, f0, alphaFab) {
     const pel = (2 * E_mpa * Math.pow(t / D, 3)) / (1 - 0.09);
     const pp = 2 * fy * alphaFab * (t / D);
@@ -633,6 +983,45 @@
       if (eq > 0) lo = mid; else hi = mid;
     }
     return 0.5 * (lo + hi);
+  }
+
+  function buildAuditPayload() {
+    return {
+      corridor: activeCorridorId,
+      governingCode: document.getElementById('masterCode').value,
+      compositeArchitecture: document.getElementById('inCompositeArch').value,
+      drawingScale: document.getElementById('mapScale').value,
+      od_mm: document.getElementById('inOD').value,
+      subseaPipelineWT_mm: document.getElementById('inWT').value,
+      deepwaterRiserWT_mm: document.getElementById('inRiserWT').value,
+      sesamInterfaceFiles: ["T1.FEM (GeniE PLEM/Structure)", "L1.FEM (Wajac/Wadam Loads)", "R1.SIN (Sestra FEA)", "G1.SIF (HydroD Vessel RAOs)", "Riflex_Coupled_Riser.sim", "Composite_Twin.VTFx"],
+      capexSummary: document.getElementById('costTotal').textContent,
+      mto: mtoLines,
+      stationVerification: evaluated
+    };
+  }
+
+  async function updateEtlDashboard() {
+    const payloadStr = JSON.stringify(buildAuditPayload(), null, 2);
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payloadStr));
+    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    document.getElementById('etlHashShort').textContent = hash.slice(0, 16) + '...' + hash.slice(-8);
+    document.getElementById('etlFullHashBadge').textContent = `SHA-256: ${hash}`;
+    const spanCount = evaluated.filter(r => r.isSpan).length;
+    document.getElementById('etlPodsRows').textContent = `${evaluated.length + spanCount + 1} Rows`;
+
+    document.getElementById('tbodyPodsPreview').innerHTML = evaluated.map(r => `
+      <tr>
+        <td><b>${activeCorridorId}</b></td>
+        <td>${r.kp.toFixed(2)}</td>
+        <td>${r.zone}</td>
+        <td>${r.e} E / ${r.n} N</td>
+        <td>${r.wd.toFixed(1)}</td>
+        <td>${r.collUtil.toFixed(2)} / ${r.burstUtil.toFixed(2)}</td>
+        <td><span class="badge ${r.ok ? 'b-pass' : 'b-fail'}">${r.ok ? 'PASS' : 'REVISE'}</span></td>
+      </tr>
+    `).join('');
   }
 
   function runAllSolvers() {
@@ -671,12 +1060,17 @@
     const t1Riser = Math.max(wtRiser * 0.95 - tCorr, 2.0);
     const PcPipe = solveCollapsePc(D, t1Pipe, fy, E_mpa, f0, alphaFab);
     const PcRiser = solveCollapsePc(D, t1Riser, fy, E_mpa, f0, 1.00);
+    lastPcPipeBar = PcPipe * 10;
+    lastPcRiserBar = PcRiser * 10;
 
     const gammaM = 1.15;
     let maxPipeColl = 0, maxPipeBurst = 0, maxRiserUtil = 0, minSG = 99, spanList = [];
 
+    const pipePts = corridor.filter(p => p.zone === "Subsea Pipeline");
+    const maxKp = pipePts.length ? (pipePts[pipePts.length - 1].kp || 60) : 60;
+
     evaluated = corridor.map(pt => {
-      const isRiserZone = pt.zone === "Deepwater Riser" || pt.zone === "PLEM / Tie-In" || pt.kp >= 59.5;
+      const isRiserZone = pt.zone === "Deepwater Riser" || pt.zone === "PLEM / Tie-In" || pt.kp >= (maxKp - 0.5);
       const wt = isRiserZone ? wtRiser : wtPipe;
       const t1 = isRiserZone ? t1Riser : t1Pipe;
       const t2 = Math.max(wt - tCorr, 2.0);
@@ -694,9 +1088,8 @@
 
       let burstUtil = 0, combUtil = 0;
       if (pt.zone === "Deepwater Riser" && compArch !== "PIPE_SCR") {
-        // ISO 13628-2 / -10 Flexible Riser Layer Utilization (Table 6/7: Normal 0.67, Extreme 0.85)
         burstUtil = (pdBar / 350) * 0.67;
-        combUtil = 0.64; // Fatigue life > 10x service life (250 yrs)
+        combUtil = 0.64;
       } else if (code === 'ISO13623') {
         const Fh = isRiserZone ? 0.67 : (fluidCat === 'D' ? 0.83 : 0.77);
         const sigmaD = Math.min(smys - fTemp, (smts - fTemp) / 1.15);
@@ -754,7 +1147,8 @@
       }
 
       const isSpan = pt.feat.toLowerCase().includes('span');
-      const spanLen = isSpan ? (pt.feat.includes('58m') ? 58 : 48) : 0;
+      const matchSpan = pt.feat.match(/(\d+)\s*m/i);
+      const spanLen = isSpan ? (matchSpan ? parseInt(matchSpan[1], 10) : 48) : 0;
       if (isSpan) spanList.push({ kp: pt.kp, spanLen });
 
       const stabOk = pt.zone !== "Subsea Pipeline" || (sg >= 1.15 && (pt.wd > 220 || cwc >= 40));
@@ -775,7 +1169,7 @@
     elRiser.style.color = maxRiserUtil <= 1.0 ? '#4ade80' : '#f87171';
 
     document.getElementById('kpiSpan').textContent = `SG ${minSG.toFixed(2)} | ${spanList.length} Spans`;
-    document.getElementById('pcBadge').textContent = `Subsea Pipe Pc = ${(PcPipe * 10).toFixed(1)} bar | Riser Pc = ${(PcRiser * 10).toFixed(1)} bar`;
+    document.getElementById('pcBadge').textContent = `Subsea Pipe Pc = ${lastPcPipeBar.toFixed(1)} bar | Riser Pc = ${lastPcRiserBar.toFixed(1)} bar`;
 
     document.getElementById('tbodyCalc').innerHTML = evaluated.map(r => {
       const zBadge = r.zone === "Deepwater Riser" ? 'b-pass' : (r.zone === "PLEM / Tie-In" ? 'b-warn' : '');
@@ -800,7 +1194,7 @@
       `;
     }).join('');
 
-    const totalLenM = 60000;
+    const totalLenM = maxKp * 1000;
     const areaSteelMm2 = Math.PI * (D - wtPipe) * wtPipe;
     const deltaT = td - 10;
     const axialKn = (E_mpa * areaSteelMm2 * alphaT * deltaT) / 1000;
@@ -808,7 +1202,7 @@
 
     document.getElementById('outBuckling').innerHTML =
       `• <b>Subsea Trunkline Expansion (ISO 13623 6.15):</b> ±${endExpM.toFixed(2)} m at PLEM tie-in (Virtual anchor ~3.2 km).<br>` +
-      `• <b>Effective Axial Force S:</b> ${(axialKn / 1000).toFixed(2)} MN driving lateral snaking on soft clay (KP 0–20) &amp; upheaval at shallow shelf.<br>` +
+      `• <b>Effective Axial Force S:</b> ${(axialKn / 1000).toFixed(2)} MN driving lateral snaking on soft clay &amp; upheaval at shallow shelf.<br>` +
       `• <b>Mitigation:</b> Engineered snake-lay initiation curves every 2.5 km + 1.2 m rock-berm cover (RP-F110 / SimBuck).`;
 
     const steelTonsPipe = (areaSteelMm2 / 1e6) * 7850 * totalLenM / 1000;
@@ -838,7 +1232,7 @@
       `• <b>PLEM &amp; Tie-In Z-Spool:</b> Suction-piled PLEM + Dual-barrier SSIV + 45m × 22m rigid metrology Z-spool decoupling trunkline expansion from riser TDZ.<br>` +
       `• <b>Integrity Mgmt (RP-F116 &amp; AS 2885.3):</b> DFI Résumé issued; Year 1 baseline ROV survey + 3-yr RBI cycle.`;
 
-    const cwcLenM = 15080;
+    const cwcLenM = Math.round(totalLenM * 0.251);
     const pipeRate = isCRA ? 5400 : 1850;
     const riserCost = compArch === 'PIPE_SCR' ? 1850000 : 3950000;
     const riserSpec = compArch === 'PIPE_SCR'
@@ -848,15 +1242,15 @@
         : `245m Bonded Flexible Riser/Jumper + End Fittings + Bend Stiffener (ISO 13628-10)`);
 
     mtoLines = [
-      { wbs: "1.1", item: isCRA ? "Subsea Pipeline: 22Cr Duplex / CRA Linepipe" : "Subsea Pipeline: Carbon Steel Linepipe (API 5L)", spec: `60.0 km OD ${D}mm × ${wtPipe}mm WT (${Math.ceil(totalLenM/12.2)} joints, α_fab=${alphaFab})`, qty: Math.round(steelTonsPipe), unit: "MT", rate: pipeRate },
+      { wbs: "1.1", item: isCRA ? "Subsea Pipeline: 22Cr Duplex / CRA Linepipe" : "Subsea Pipeline: Carbon Steel Linepipe (API 5L)", spec: `${maxKp.toFixed(1)} km OD ${D}mm × ${wtPipe}mm WT (${Math.ceil(totalLenM/12.2)} joints, α_fab=${alphaFab})`, qty: Math.round(steelTonsPipe), unit: "MT", rate: pipeRate },
       { wbs: "1.2", item: "Subsea Pipeline: Anti-Corrosion Coating (3LPP)", spec: "3.5 mm 3-Layer Polypropylene per ISO 21809-1 / RP-F106", qty: totalLenM, unit: "m", rate: 68 },
-      { wbs: "1.3", item: "Subsea Pipeline: Concrete Weight Coating (CWC)", spec: `${cwcUser} mm thickness, 3,040 kg/m³ per ISO 21809-5 (KP 45–60 NWS stability)`, qty: cwcLenM, unit: "m", rate: 145 },
+      { wbs: "1.3", item: "Subsea Pipeline: Concrete Weight Coating (CWC)", spec: `${cwcUser} mm thickness, 3,040 kg/m³ per ISO 21809-5 (Shallow NWS stability)`, qty: cwcLenM, unit: "m", rate: 145 },
       { wbs: "1.4", item: "Subsea Pipeline: Sacrificial Bracelet Anodes", spec: `${(anodeNetKg/anodeCount).toFixed(1)} kg net Al-Zn-In each, DNV-RP-B401 / ISO 15589-2`, qty: anodeCount, unit: "Nos", rate: 620 },
       { wbs: "2.1", item: "Deepwater Riser System (150m WD to Hang-Off)", spec: riserSpec, qty: 1, unit: "Lot", rate: riserCost },
       { wbs: "2.2", item: "Subsea PLEM, Dual-Barrier SSIV &amp; Z-Spools", spec: `Suction-piled PLEM + 2× Z-Spools (OD ${D}mm × ${wtRiser}mm WT) + Monolithic Isolating Joint`, qty: 2, unit: "Sets", rate: 1350000 },
       { wbs: "2.3", item: "Free-Span &amp; Crossing Remediation", spec: "Articulated concrete mattresses (24 nos) + rock berm (3,200 MT)", qty: 3200, unit: "MT", rate: 210 },
       { wbs: "3.1", item: "Geophysical / Geotechnical Survey Spread", spec: "DP2 Survey Vessel (MBES, SSS, SBP, CPT) + As-Built ROV (ISO 13623 10.9)", qty: 18, unit: "Days", rate: 65000 },
-      { wbs: "3.2", item: "Offshore Pipelay &amp; Riser Installation Spread", spec: "DP3 S-Lay/J-Lay Vessel (60 km trunkline + Riser pull-in/hang-off) + AHTS", qty: 26, unit: "Days", rate: 340000 },
+      { wbs: "3.2", item: "Offshore Pipelay &amp; Riser Installation Spread", spec: `DP3 S-Lay/J-Lay Vessel (${maxKp.toFixed(0)} km trunkline + Riser pull-in/hang-off) + AHTS`, qty: 26, unit: "Days", rate: 340000 },
       { wbs: "3.3", item: "Subsea Trenching, Tie-In &amp; System Hydrotest", spec: "DSV / Trenching Vessel + Z-Spool Tie-In + Strength/Leak Test (AS/NZS 2885.5)", qty: 16, unit: "Days", rate: 185000 }
     ];
 
@@ -875,7 +1269,7 @@
     document.getElementById('costSubsea').textContent = '$' + (cSubsea / 1e6).toFixed(2) + ' M';
     document.getElementById('costMarine').textContent = '$' + (cMarine / 1e6).toFixed(2) + ' M';
     document.getElementById('costTotal').textContent = '$' + (cGrand / 1e6).toFixed(2) + ' M';
-    document.getElementById('costPerKm').textContent = `Composite Field Benchmark: $${(cGrand / 60 / 1e6).toFixed(2)} M / km`;
+    document.getElementById('costPerKm').textContent = `Composite Field Benchmark: $${(cGrand / maxKp / 1e6).toFixed(2)} M / km`;
 
     document.getElementById('tbodyMto').innerHTML = mtoLines.map(l => `
       <tr>
@@ -889,7 +1283,35 @@
       </tr>
     `).join('');
 
+    updateScaleMetadata();
     renderAllCanvases();
+    updateEtlDashboard();
+  }
+
+  function updateScaleMetadata() {
+    const sc = getScaleConfig();
+    const pipePts = evaluated.filter(p => p.zone === "Subsea Pipeline");
+    const maxKp = pipePts.length ? (pipePts[pipePts.length - 1].kp || 60) : 60;
+    document.getElementById('routeMeta').textContent =
+      `Subsea Line: ${maxKp.toFixed(2)} km (1,120m→150m) + Riser: 245m Arc • Scale: ${sc.label} (${sc.desc})`;
+    document.getElementById('schemScaleBadge').textContent =
+      `Scale ${sc.label} (${sc.desc}) • Subsea Manifold (KP 0) → ${maxKp.toFixed(0)} km Trunkline → PLEM & Z-Spool → Dynamic Riser → Host Topside`;
+  }
+
+  function drawScaleBar(ctx, X, Y, sc) {
+    ctx.save();
+    ctx.strokeStyle = '#94a3b8';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    const barW = sc.zoom === 2.0 ? 180 : (sc.zoom === 0.55 ? 90 : 130);
+    ctx.beginPath();
+    ctx.moveTo(X, Y); ctx.lineTo(X + barW, Y);
+    ctx.moveTo(X, Y - 5); ctx.lineTo(X, Y + 5);
+    ctx.moveTo(X + barW, Y - 5); ctx.lineTo(X + barW, Y + 5);
+    ctx.stroke();
+    ctx.font = 'bold 10.5px Arial';
+    ctx.fillText(sc.barText, X, Y - 9);
+    ctx.restore();
   }
 
   function renderAllCanvases() {
@@ -905,65 +1327,87 @@
     const W = c.width, H = c.height;
     ctx.clearRect(0, 0, W, H);
 
+    const sc = getScaleConfig();
     const compArch = document.getElementById('inCompositeArch').value;
+    const walkKp = parseFloat(document.getElementById('flySlider').value) || 0;
+    const pipePts = evaluated.filter(p => p.kp <= 60.0);
+    const maxKp = pipePts.length ? (pipePts[pipePts.length - 1].kp || 60) : 60;
+
+    let kpMin = 0, kpMax = maxKp;
+    if (sc.zoom > 1.0) {
+      const halfSpan = (maxKp / sc.zoom) * 0.5;
+      kpMin = Math.max(0, Math.min(walkKp - halfSpan, maxKp - 2 * halfSpan));
+      kpMax = Math.min(maxKp, kpMin + 2 * halfSpan);
+    }
+
     const seaLevelY = 48;
     const maxWd = 1200;
-    const pipeEndX = W - 260;
+    const leftMargin = sc.zoom < 1.0 ? 180 : 65;
+    const pipeEndX = sc.zoom < 1.0 ? W - 360 : W - 260;
 
-    // Water column background & MSL line
     ctx.fillStyle = 'rgba(2, 132, 199, 0.08)';
-    ctx.fillRect(60, seaLevelY, W - 95, H - seaLevelY - 22);
+    ctx.fillRect(leftMargin, seaLevelY, W - leftMargin - 35, H - seaLevelY - 22);
     ctx.strokeStyle = '#0284c7';
     ctx.setLineDash([6, 4]);
-    ctx.beginPath(); ctx.moveTo(60, seaLevelY); ctx.lineTo(W - 35, seaLevelY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(leftMargin, seaLevelY); ctx.lineTo(W - 35, seaLevelY); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = '#7dd3fc';
     ctx.font = 'bold 11px Arial';
-    ctx.fillText('Mean Sea Level (0.0 m LAT)', 70, seaLevelY - 6);
+    ctx.fillText(`Mean Sea Level (0.0 m LAT) • View Window: KP ${kpMin.toFixed(1)} to ${kpMax.toFixed(1)} km`, leftMargin + 10, seaLevelY - 6);
 
-    const pipePts = evaluated.filter(p => p.kp <= 60.0);
-    const toX = kp => 65 + (kp / 60.0) * (pipeEndX - 65);
+    const toX = kp => leftMargin + ((kp - kpMin) / Math.max(kpMax - kpMin, 1)) * (pipeEndX - leftMargin);
     const toY = wd => seaLevelY + (wd / maxWd) * (H - seaLevelY - 26);
 
-    // Seabed bathymetry fill
     ctx.beginPath();
-    ctx.moveTo(toX(0), H - 22);
-    pipePts.forEach(p => ctx.lineTo(toX(p.kp), toY(p.wd)));
+    ctx.moveTo(leftMargin, H - 22);
+    pipePts.forEach(p => {
+      if (p.kp >= kpMin - 5 && p.kp <= kpMax + 5) {
+        ctx.lineTo(Math.max(leftMargin, Math.min(pipeEndX, toX(p.kp))), toY(p.wd));
+      }
+    });
     ctx.lineTo(W - 35, toY(150));
     ctx.lineTo(W - 35, H - 22);
     ctx.closePath();
     ctx.fillStyle = 'rgba(15, 118, 110, 0.28)';
     ctx.fill();
 
-    // Zone A: Subsea Pipeline (KP 0 to 60)
     ctx.beginPath();
-    pipePts.forEach((p, i) => {
-      const x = toX(p.kp), y = toY(p.wd) - 3;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    let started = false;
+    pipePts.forEach(p => {
+      if (p.kp >= kpMin - 5 && p.kp <= kpMax + 5) {
+        const x = Math.max(leftMargin, Math.min(pipeEndX, toX(p.kp)));
+        const y = toY(p.wd) - 3;
+        if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+      }
     });
     ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = sc.zoom > 1 ? 4.5 : 3.5;
     ctx.stroke();
 
     pipePts.forEach(p => {
-      const x = toX(p.kp), y = toY(p.wd) - 3;
-      if (p.isSpan) {
-        ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#fbbf24'; ctx.fill();
-        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 10.5px Arial';
-        ctx.fillText(`⚠ ${p.spanLen}m Span`, x - 28, y - 10);
+      if (p.kp >= kpMin && p.kp <= kpMax) {
+        const x = toX(p.kp), y = toY(p.wd) - 3;
+        if (p.isSpan) {
+          ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#fbbf24'; ctx.fill();
+          ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 10.5px Arial';
+          ctx.fillText(`⚠ ${p.spanLen}m Span (KP ${p.kp})`, x - 35, y - 10);
+        } else if (sc.zoom > 1.0) {
+          ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#e2e8f0'; ctx.fill();
+          ctx.fillStyle = '#94a3b8'; ctx.font = '10px Arial';
+          ctx.fillText(`KP ${p.kp.toFixed(1)} (${p.wd.toFixed(0)}m)`, x - 24, y + 15);
+        }
       }
     });
 
-    // PLEM / Riser Base Node at KP 60.0
     const plemX = pipeEndX, plemY = toY(150) - 3;
     ctx.fillStyle = '#4ade80';
     ctx.fillRect(plemX - 7, plemY - 7, 14, 14);
     ctx.fillStyle = '#4ade80';
     ctx.font = 'bold 11px Arial';
-    ctx.fillText('PLEM & Z-Spool (KP 60 • 150m WD)', plemX - 115, plemY + 22);
+    ctx.fillText(`PLEM & Z-Spool (KP ${maxKp.toFixed(0)} • 150m WD)`, plemX - 125, plemY + 22);
 
-    // Zone B: Coupled Deepwater Riser ascending through water column to FPSO/Platform
     const hangX = W - 95, hangY = seaLevelY - 16;
     ctx.strokeStyle = '#4ade80';
     ctx.lineWidth = 4;
@@ -976,11 +1420,12 @@
     }
     ctx.stroke();
 
-    // Host FPSO / Platform hull icon
     ctx.fillStyle = '#f8fafc';
     ctx.fillRect(hangX - 24, hangY - 14, 52, 16);
     ctx.fillStyle = '#4ade80';
     ctx.fillText(compArch === 'PIPE_SCR' ? 'SCR Riser' : 'Lazy-Wave Riser', hangX - 52, hangY - 20);
+
+    drawScaleBar(ctx, leftMargin + 15, H - 36, sc);
   }
 
   function draw3D() {
@@ -990,24 +1435,27 @@
     const W = c.width, H = c.height;
     ctx.clearRect(0, 0, W, H);
 
+    const sc = getScaleConfig();
     const compArch = document.getElementById('inCompositeArch').value;
     const pipePts = evaluated.filter(p => p.kp <= 60.0);
-    const endX = W - 260;
+    const maxKp = pipePts.length ? (pipePts[pipePts.length - 1].kp || 60) : 60;
+    const startX = sc.zoom < 1.0 ? 220 : 85;
+    const endX = sc.zoom < 1.0 ? W - 360 : W - 260;
 
+    const laneSpacing = 20 * sc.zoom;
     for (let z = -3; z <= 3; z++) {
       ctx.beginPath();
       pipePts.forEach((p, i) => {
-        const u = p.kp / 60.0;
-        const x = 85 + u * (endX - 85) + z * 20;
-        const y = 75 + (p.wd / 1200) * (H - 115) - z * 10 + Math.sin(u * 12 + z) * 4;
+        const u = p.kp / maxKp;
+        const x = startX + u * (endX - startX) + z * laneSpacing;
+        const y = 75 + (p.wd / 1200) * (H - 115) - z * (10 * sc.zoom) + Math.sin(u * 12 + z) * 4;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
       ctx.strokeStyle = z === 0 ? '#38bdf8' : 'rgba(56, 189, 248, 0.22)';
-      ctx.lineWidth = z === 0 ? 4 : 1;
+      ctx.lineWidth = z === 0 ? (sc.zoom > 1 ? 5 : 4) : 1;
       ctx.stroke();
     }
 
-    // 3D Coupled Riser rising from PLEM at endX to Topside Hang-off
     const plemY = 75 + (150 / 1200) * (H - 115);
     const hangX = W - 105, hangY = 34;
     ctx.strokeStyle = '#4ade80';
@@ -1028,19 +1476,21 @@
     ctx.fillText('Host FPSO / Platform', hangX - 55, hangY - 15);
 
     const walkKp = parseFloat(document.getElementById('flySlider').value) || 0;
-    const isRiserCam = walkKp > 60.0;
+    const isRiserCam = walkKp > maxKp;
     document.getElementById('flyLabel').textContent = isRiserCam
-      ? `Riser Elev. -${Math.max(150 - (walkKp - 60) * 75, 0).toFixed(0)}m (Water Column)`
+      ? `Riser Elev. -${Math.max(150 - (walkKp - maxKp) * 75, 0).toFixed(0)}m (Water Column)`
       : `KP ${walkKp.toFixed(2)} km (Subsea Pipeline)`;
     const camX = isRiserCam
-      ? endX + ((walkKp - 60) / 2.0) * (hangX - endX)
-      : 85 + (walkKp / 60.0) * (endX - 85);
+      ? endX + ((walkKp - maxKp) / 2.0) * (hangX - endX)
+      : startX + (walkKp / maxKp) * (endX - startX);
 
     ctx.strokeStyle = '#4ade80';
     ctx.setLineDash([5, 4]);
     ctx.beginPath(); ctx.moveTo(camX, 12); ctx.lineTo(camX, H - 12); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillText(isRiserCam ? '3D Riser Inspection Camera' : `3D Seabed ROV @ KP ${walkKp.toFixed(1)} km`, Math.min(camX + 8, W - 260), 22);
+
+    drawScaleBar(ctx, 25, H - 18, sc);
   }
 
   function drawSchematic() {
@@ -1050,13 +1500,22 @@
     const W = c.width, H = c.height;
     ctx.clearRect(0, 0, W, H);
 
+    const sc = getScaleConfig();
     const D = document.getElementById('inOD').value;
     const wtPipe = document.getElementById('inWT').value;
     const wtRiser = document.getElementById('inRiserWT').value;
     const cwc = document.getElementById('inCwc').value;
     const compArch = document.getElementById('inCompositeArch').value;
 
-    // Zone A & Zone B Header Banners
+    ctx.save();
+    if (sc.zoom === 2.0) {
+      ctx.translate(-520, -10);
+      ctx.scale(1.42, 1.05);
+    } else if (sc.zoom === 0.55) {
+      ctx.translate(160, 12);
+      ctx.scale(0.78, 0.92);
+    }
+
     ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
     ctx.fillRect(50, 14, 1020, 24);
     ctx.fillStyle = '#38bdf8';
@@ -1068,17 +1527,14 @@
     ctx.fillStyle = '#4ade80';
     ctx.fillText(`ZONE B: DEEPWATER RISER (${wtRiser}mm WT)`, 1092, 30);
 
-    // Seabed baseline
     ctx.strokeStyle = '#1e3a5f';
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(40, 165); ctx.lineTo(W - 40, 165); ctx.stroke();
 
-    // Subsea Pipeline
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 6;
     ctx.beginPath(); ctx.moveTo(110, 159); ctx.lineTo(1110, 159); ctx.stroke();
 
-    // Concrete Weight Coated Section (KP 45-60)
     ctx.strokeStyle = '#94a3b8';
     ctx.lineWidth = 11;
     ctx.beginPath(); ctx.moveTo(820, 159); ctx.lineTo(1090, 159); ctx.stroke();
@@ -1103,7 +1559,6 @@
       ctx.fillText(n.sub, n.x - 52, 130);
     });
 
-    // Coupled Riser ascending to FPSO
     ctx.strokeStyle = '#4ade80';
     ctx.lineWidth = 4.5;
     ctx.beginPath();
@@ -1120,25 +1575,208 @@
     ctx.fillStyle = '#4ade80';
     ctx.font = 'bold 11px Arial';
     ctx.fillText(`${riserShort} (DFF=10)`, 1210, 82);
+    ctx.restore();
+
+    drawScaleBar(ctx, 50, H - 16, sc);
+  }
+
+  function openPrintReadyPdf(mode) {
+    renderAllCanvases();
+    const sc = getScaleConfig();
+    const code = document.getElementById('masterCode').value;
+    const compArch = document.getElementById('inCompositeArch').options[document.getElementById('inCompositeArch').selectedIndex].text;
+    const D = document.getElementById('inOD').value;
+    const wtPipe = document.getElementById('inWT').value;
+    const wtRiser = document.getElementById('inRiserWT').value;
+    const grade = document.getElementById('inGrade').options[document.getElementById('inGrade').selectedIndex].text;
+    const pdBar = document.getElementById('inPd').value;
+    const td = document.getElementById('inTd').value;
+    const cwc = document.getElementById('inCwc').value;
+
+    const img2D = document.getElementById('canvas2D').toDataURL('image/png');
+    const img3D = document.getElementById('canvas3D').toDataURL('image/png');
+    const imgSchem = document.getElementById('canvasSchematic').toDataURL('image/png');
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    const rowsHtml = evaluated.map(r => `
+      <tr>
+        <td><b>${r.kp.toFixed(2)}</b></td>
+        <td>${r.zone}</td>
+        <td>${r.wd > 0 ? r.wd.toFixed(0) + ' m WD' : '+25 m LAT'}</td>
+        <td>${r.feat} (${r.soil})</td>
+        <td>${r.wt} / ${r.cwc}</td>
+        <td>${r.collUtil.toFixed(2)}</td>
+        <td>${r.burstUtil.toFixed(2)}</td>
+        <td>${r.combUtil.toFixed(2)}</td>
+        <td>SG ${r.sg.toFixed(2)}</td>
+        <td><b>${r.ok ? 'PASS' : 'REVISE'}</b></td>
+      </tr>
+    `).join('');
+
+    const mtoHtml = mtoLines.map(l => `
+      <tr>
+        <td><b>${l.wbs}</b></td>
+        <td>${l.item}</td>
+        <td>${l.spec}</td>
+        <td style="text-align:right;">${l.qty.toLocaleString()} ${l.unit}</td>
+        <td style="text-align:right;">$${l.total.toLocaleString()}</td>
+      </tr>
+    `).join('');
+
+    const isDrawingsOnly = mode === 'DRAWINGS';
+    const docTitle = isDrawingsOnly
+      ? `ALIGNMENT SHEETS & COMPOSITE SYSTEM GAD (${sc.label})`
+      : `ENGINEERING CALCULATION REPORT, ALIGNMENT & COMPOSITE SYSTEM GAD`;
+
+    const calcSections = isDrawingsOnly ? '' : `
+      <h2>1. Design Basis &amp; Limit-State Summary</h2>
+      <table class="meta-tbl">
+        <tr>
+          <td><b>Composite System:</b> ${compArch}</td>
+          <td><b>Governing Code:</b> ${code}</td>
+          <td><b>Drawing Scale:</b> ${sc.label}</td>
+        </tr>
+        <tr>
+          <td><b>Linepipe OD × Pipe WT:</b> ${D} mm × ${wtPipe} mm</td>
+          <td><b>Riser WT (High SC):</b> ${wtRiser} mm</td>
+          <td><b>Material Grade:</b> ${grade}</td>
+        </tr>
+        <tr>
+          <td><b>Design Pressure / Temp:</b> ${pdBar} bar / ${td} °C</td>
+          <td><b>Characteristic Collapse Pc:</b> Pipe ${lastPcPipeBar.toFixed(1)} bar | Riser ${lastPcRiserBar.toFixed(1)} bar</td>
+          <td><b>Shallow CWC / Est. CAPEX:</b> ${cwc} mm | ${document.getElementById('costTotal').textContent}</td>
+        </tr>
+      </table>
+
+      <h2>2. Station-by-Station Limit-State Verification (Subsea Pipeline + Deepwater Riser)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>KP</th><th>Zone</th><th>Depth</th><th>Feature &amp; Soil</th><th>WT/CWC</th>
+            <th>Coll.</th><th>Burst</th><th>Comb.</th><th>Stability</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+
+      <div class="page-break"></div>
+      <h2>3. Multi-Physics Engineering Notes &amp; Composite MTO / CAPEX Summary</h2>
+      <div class="note-box">
+        <p>${document.getElementById('outBuckling').innerHTML}</p>
+        <p style="margin-top:6px;">${document.getElementById('outCpInstall').innerHTML}</p>
+        <p style="margin-top:6px;">${document.getElementById('outRiserCross').innerHTML}</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>WBS</th><th>Subsystem / Package</th><th>Specification</th><th style="text-align:right;">Qty</th><th style="text-align:right;">Est. Cost</th></tr>
+        </thead>
+        <tbody>
+          ${mtoHtml}
+          <tr style="background:#e2e8f0;font-weight:bold;">
+            <td colspan="4" style="text-align:right;">TOTAL COMPOSITE FIELD INSTALLED CAPEX (SUBSEA PIPELINE + RISER):</td>
+            <td style="text-align:right;">${document.getElementById('costTotal').textContent}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="page-break"></div>
+    `;
+
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>${docTitle} - ${activeCorridorId}</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #0f172a; margin: 0; padding: 12px; font-size: 10.5px; }
+  .hdr { border: 2px solid #0b2948; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; margin-bottom: 10px; }
+  .hdr h1 { font-size: 14px; color: #0b2948; margin: 0; }
+  .hdr p { font-size: 9.5px; color: #475569; margin: 2px 0 0 0; }
+  h2 { font-size: 11.5px; color: #0b2948; border-bottom: 1.5px solid #0284c7; padding-bottom: 3px; margin: 10px 0 6px 0; text-transform: uppercase; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 9.5px; }
+  th, td { border: 1px solid #cbd5e1; padding: 4px 6px; text-align: left; }
+  th { background: #0b2948; color: #fff; }
+  .meta-tbl td { background: #f8fafc; font-size: 10px; }
+  .note-box { border: 1px solid #cbd5e1; background: #f8fafc; padding: 8px 10px; margin-bottom: 10px; font-size: 10px; }
+  .dwg-frame { border: 2px solid #0b2948; padding: 6px; margin-bottom: 8px; background: #061120; }
+  .dwg-frame img { width: 100%; height: auto; display: block; }
+  .dwg-cap { color: #e2e8f0; font-size: 9.5px; font-weight: bold; padding: 3px 4px; }
+  .signoff { border: 1.5px solid #0b2948; width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .signoff td { padding: 5px 8px; font-size: 9.5px; background: #f8fafc; }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+  <div class="hdr">
+    <div>
+      <h1>L2G ENGINEERING CONSULTANCY LLP • ${docTitle}</h1>
+      <p>Project Corridor: <b>${activeCorridorId}</b> | PODS 7.0 / CFIHOS / DNV Sesam Kernel | GoI Copyright Reg. SW-2026024357 | LLPIN: ADA-7662</p>
+    </div>
+    <div style="text-align:right;font-size:9.5px;">
+      <b>Doc No:</b> L2G-NEXUS-RPT-001<br>
+      <b>Rev:</b> 0 (IFC) | <b>Date:</b> ${dateStr}<br>
+      <b>Scale:</b> ${sc.label}
+    </div>
+  </div>
+
+  ${calcSections}
+
+  <h2>${isDrawingsOnly ? '1' : '4'}. Composite Subsea Pipeline &amp; Deepwater Riser General Arrangement Drawing (GAD)</h2>
+  <div class="dwg-frame">
+    <div class="dwg-cap">DWG-01: END-TO-END COMPOSITE SUBSEA PIPELINE &amp; DEEPWATER RISER ARCHITECTURE (${sc.label})</div>
+    <img src="${imgSchem}" />
+  </div>
+
+  <h2>${isDrawingsOnly ? '2' : '5'}. 2D Bathymetric Elevation &amp; 3D Seabed / Water-Column Alignment Profile</h2>
+  <div class="dwg-frame">
+    <div class="dwg-cap">DWG-02A: 2D SUBSEA BATHYMETRIC DRAPING (KP 0–60 KM) &amp; COUPLED RISER PROFILE (${sc.label})</div>
+    <img src="${img2D}" />
+  </div>
+  <div class="dwg-frame">
+    <div class="dwg-cap">DWG-02B: 3D SEABED CORRIDOR &amp; WATER-COLUMN RISER DIGITAL TWIN (${sc.label})</div>
+    <img src="${img3D}" />
+  </div>
+
+  <table class="signoff">
+    <tr>
+      <td><b>Prepared By (Tier 1 Originator):</b> NexusPipeline Solver Engine</td>
+      <td><b>Checked By (Tier 2 Checker):</b> Senior Subsea &amp; Pipeline Specialist</td>
+      <td><b>Approved By (Tier 3 Approver):</b> Designated Partner, L2G EC LLP</td>
+      <td><b>Status:</b> Issued for Client Review / PDF</td>
+    </tr>
+  </table>
+  <script>window.onload = function() { setTimeout(function() { window.print(); }, 350); };<\/script>
+</body>
+</html>`);
+    win.document.close();
   }
 
   ['masterCode', 'inCompositeArch', 'inOD', 'inWT', 'inRiserWT', 'inGrade', 'inAlphaFab', 'inFluidCat', 'inCorr', 'inPd', 'inTd', 'inRhoP', 'inHs', 'inCwc'].forEach(id => {
     document.getElementById(id).addEventListener('change', runAllSolvers);
   });
   document.getElementById('btnRecalc').addEventListener('click', runAllSolvers);
-  document.getElementById('mapScale').addEventListener('change', e => {
-    document.getElementById('routeMeta').textContent = `Subsea Line: 60.00 km (1,120m→150m) + Riser: 245m Arc • Scale: ${e.target.value}`;
+
+  document.getElementById('mapScale').addEventListener('change', () => {
+    updateScaleMetadata();
+    renderAllCanvases();
+    updateEtlDashboard();
   });
-  document.getElementById('flySlider').addEventListener('input', draw3D);
+
+  document.getElementById('flySlider').addEventListener('input', () => {
+    draw2D();
+    draw3D();
+  });
+
   document.getElementById('btnFly').addEventListener('click', function() {
     if (flyInterval) {
       clearInterval(flyInterval); flyInterval = null;
       this.textContent = '▶ Start 3D ROV Inspection';
     } else {
-      this.textContent = '⏸ Pause 3D ROV Inspection';
+      this.textContent = '⏸ Pause ROV Inspection';
       flyInterval = setInterval(() => {
         const s = document.getElementById('flySlider');
         s.value = (parseFloat(s.value) + 1.0) % 62.5;
+        draw2D();
         draw3D();
       }, 150);
     }
@@ -1164,6 +1802,7 @@
         { kp: lastPt.kp + 0.16, zone: "Deepwater Riser", e: lastPt.e + 120, n: lastPt.n + 100, wd: lastPt.wd * 0.5, feat: "Mid-Water Catenary / Buoyancy Arch", soil: "Water Column", cwc: 0 },
         { kp: lastPt.kp + 0.24, zone: "Deepwater Riser", e: lastPt.e + 180, n: lastPt.n + 150, wd: 0, feat: "Splash Zone & Topside Hang-Off (+25m)", soil: "FPSO / Platform", cwc: 0 }
       ]);
+      activeCorridorId = f.name.replace(/\.csv$/i, '');
       document.getElementById('statusMsg').innerHTML = `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${f.name}</span> (${loadedPts.length} Subsea Pipeline KPs + Coupled Deepwater Riser) — Synchronized.`;
       runAllSolvers();
     };
@@ -1180,8 +1819,12 @@
       const rs = cfg.riser_system_properties || {};
       const pm = cfg.process_and_metocean || {};
 
+      if (cfg.project_metadata?.corridor_id) activeCorridorId = cfg.project_metadata.corridor_id;
       if (cfg.project_metadata?.composite_architecture) {
         document.getElementById('inCompositeArch').value = cfg.project_metadata.composite_architecture;
+      }
+      if (cfg.project_metadata?.drawing_scale) {
+        document.getElementById('mapScale').value = cfg.project_metadata.drawing_scale;
       }
       if (lp.nominal_od_mm) document.getElementById('inOD').value = lp.nominal_od_mm.toFixed(1);
       if (lp.nominal_wt_mm) document.getElementById('inWT').value = lp.nominal_wt_mm.toFixed(1);
@@ -1189,6 +1832,7 @@
       if (lp.smys_mpa) document.getElementById('inGrade').value = String(lp.smys_mpa);
       if (lp.fabrication_factor_alpha_fab) document.getElementById('inAlphaFab').value = lp.fabrication_factor_alpha_fab.toFixed(2);
       if (lp.corrosion_allowance_mm) document.getElementById('inCorr').value = lp.corrosion_allowance_mm;
+      if (pm.fluid_category) document.getElementById('inFluidCat').value = pm.fluid_category;
       if (pm.design_pressure_bar) document.getElementById('inPd').value = pm.design_pressure_bar;
       if (pm.design_temperature_c) document.getElementById('inTd').value = pm.design_temperature_c;
       if (pm.product_density_kgm3) document.getElementById('inRhoP').value = pm.product_density_kgm3;
@@ -1199,7 +1843,6 @@
         document.getElementById('inCwc').value = lp.concrete_weight_coating.zone_kp_45_to_60_mm;
       }
 
-      // Optional custom corridor_profile array ingestion (supports both full composite arrays and seabed-only arrays)
       if (Array.isArray(cfg.corridor_profile) && cfg.corridor_profile.length > 0) {
         const parsed = cfg.corridor_profile.map(pt => ({
           kp: Number(pt.kp) || 0,
@@ -1227,31 +1870,92 @@
       }
 
       document.getElementById('statusMsg').innerHTML =
-        `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${cfg.project_metadata?.corridor_id || f.name}</span> (${corridor.length} Stations: Subsea Pipeline + Coupled Riser) — Synchronized.`;
+        `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${activeCorridorId}</span> (${corridor.length} Stations: Subsea Pipeline + Coupled Riser) — Synchronized.`;
       runAllSolvers();
     };
     r.readAsText(f);
   });
 
+  document.getElementById('btnExportJson').addEventListener('click', () => {
+    const gradeVal = document.getElementById('inGrade').value;
+    const isCRA = gradeVal === '450_CRA';
+    const smysVal = isCRA ? 450 : parseFloat(gradeVal);
+    const pdVal = parseFloat(document.getElementById('inPd').value);
+    const configObj = {
+      project_metadata: {
+        corridor_id: activeCorridorId,
+        prepared_by: "L2G Engineering Consultancy LLP (LLPIN: ADA-7662)",
+        copyright_registration: "GoI Reg. SW-2026024357",
+        governing_code_regime: document.getElementById('masterCode').value,
+        composite_architecture: document.getElementById('inCompositeArch').value,
+        drawing_scale: document.getElementById('mapScale').value,
+        design_life_years: 25
+      },
+      linepipe_properties: {
+        zone: "Zone A: Subsea Pipeline / Trunkline",
+        nominal_od_mm: parseFloat(document.getElementById('inOD').value),
+        nominal_wt_mm: parseFloat(document.getElementById('inWT').value),
+        smys_mpa: smysVal,
+        smts_mpa: isCRA ? 620 : smysVal + 85,
+        fabrication_factor_alpha_fab: parseFloat(document.getElementById('inAlphaFab').value),
+        corrosion_allowance_mm: parseFloat(document.getElementById('inCorr').value),
+        concrete_weight_coating: {
+          density_kgm3: 3040,
+          zone_kp_45_to_60_mm: parseFloat(document.getElementById('inCwc').value)
+        }
+      },
+      riser_system_properties: {
+        zone: "Zone B: PLEM, Tie-In Z-Spool & Deepwater Dynamic Riser",
+        riser_wt_mm: parseFloat(document.getElementById('inRiserWT').value),
+        design_fatigue_factor_dff: 10.0
+      },
+      process_and_metocean: {
+        fluid_category: document.getElementById('inFluidCat').value,
+        design_pressure_bar: pdVal,
+        incidental_pressure_bar: +(pdVal * 1.1).toFixed(1),
+        design_temperature_c: parseFloat(document.getElementById('inTd').value),
+        product_density_kgm3: parseFloat(document.getElementById('inRhoP').value),
+        metocean_100yr_cyclonic: {
+          significant_wave_height_hs_m: parseFloat(document.getElementById('inHs').value)
+        }
+      },
+      corridor_profile: corridor
+    };
+
+    const jsonStr = JSON.stringify(configObj, null, 2);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([jsonStr], { type: 'application/json' }));
+    a.download = `${activeCorridorId}_config.json`;
+    a.click();
+    document.getElementById('statusMsg').innerHTML =
+      `<span style="color:#38bdf8;font-weight:700;">↓ Exported ${activeCorridorId}_config.json</span> (${corridor.length} stations &amp; active design basis).`;
+  });
+
+  document.getElementById('btnPrintPdfReport').addEventListener('click', () => openPrintReadyPdf('FULL'));
+  document.getElementById('btnPrintDrawingPdf').addEventListener('click', () => openPrintReadyPdf('DRAWINGS'));
+
   document.getElementById('btnExportAll').addEventListener('click', async () => {
-    const payload = JSON.stringify({
-      corridor: "NWS-DEEP-GAS-60KM-COMPOSITE",
-      governingCode: document.getElementById('masterCode').value,
-      compositeArchitecture: document.getElementById('inCompositeArch').value,
-      od_mm: document.getElementById('inOD').value,
-      subseaPipelineWT_mm: document.getElementById('inWT').value,
-      deepwaterRiserWT_mm: document.getElementById('inRiserWT').value,
-      sesamInterfaceFiles: ["T1.FEM (GeniE PLEM/Structure)", "L1.FEM (Wajac/Wadam Loads)", "R1.SIN (Sestra FEA)", "G1.SIF (HydroD Vessel RAOs)", "Riflex_Coupled_Riser.sim", "Composite_Twin.VTFx"],
-      capexSummary: document.getElementById('costTotal').textContent,
-      mto: mtoLines,
-      stationVerification: evaluated
-    }, null, 2);
+    const payload = JSON.stringify(buildAuditPayload(), null, 2);
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
     const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     const out = `IOGP S-563 (JIP33) COMPOSITE SUBSEA PIPELINE & DEEPWATER RISER AUDIT DOSSIER\nL2G Engineering Consultancy LLP | NexusPipeline v1.0 (GoI Copyright SW-2026024357)\nSHA-256 Cryptographic Audit Stamp: ${hash}\n========================================================================\n${payload}`;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain' }));
     a.download = `L2G_Composite_Pipeline_Riser_JIP33_SHA256.txt`;
+    a.click();
+  });
+
+  document.getElementById('btnCopyPy').addEventListener('click', function() {
+    navigator.clipboard.writeText(PYTHON_ETL_SCRIPT);
+    const orig = this.textContent;
+    this.textContent = '✓ Copied';
+    setTimeout(() => { this.textContent = orig; }, 1800);
+  });
+
+  document.getElementById('btnDlPy').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([PYTHON_ETL_SCRIPT], { type: 'text/x-python' }));
+    a.download = 'pods_jip33_etl.py';
     a.click();
   });
 
@@ -1265,20 +1969,24 @@
   });
 
   document.getElementById('btnDlSvg').addEventListener('click', () => {
-    const sc = document.getElementById('mapScale').value;
+    const sc = getScaleConfig();
+    const pipeEnd = sc.zoom === 2.0 ? 840 : (sc.zoom === 0.55 ? 760 : 940);
+    const riserEnd = sc.zoom === 2.0 ? 1140 : (sc.zoom === 0.55 ? 920 : 1120);
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" style="background:#061120;font-family:Arial,sans-serif;">
       <rect x="15" y="15" width="1170" height="410" fill="none" stroke="#38bdf8" stroke-width="2"/>
-      <text x="35" y="48" fill="#38bdf8" font-size="18" font-weight="bold">L2G ENGINEERING CONSULTANCY LLP • COMPOSITE SUBSEA PIPELINE &amp; RISER GAD (${sc})</text>
+      <text x="35" y="48" fill="#38bdf8" font-size="18" font-weight="bold">L2G ENGINEERING CONSULTANCY LLP • COMPOSITE SUBSEA PIPELINE &amp; RISER GAD (${sc.label} - ${sc.desc})</text>
       <text x="35" y="72" fill="#cbd5e1" font-size="12">Code: ${document.getElementById('masterCode').value} | Pipe WT ${document.getElementById('inWT').value}mm | Riser WT ${document.getElementById('inRiserWT').value}mm | Est. CAPEX: ${document.getElementById('costTotal').textContent}</text>
-      <line x1="60" y1="280" x2="940" y2="280" stroke="#38bdf8" stroke-width="5"/>
-      <path d="M 940 280 Q 1040 270 1120 130" fill="none" stroke="#4ade80" stroke-width="5"/>
+      <line x1="60" y1="280" x2="${pipeEnd}" y2="280" stroke="#38bdf8" stroke-width="5"/>
+      <path d="M ${pipeEnd} 280 Q ${(pipeEnd+riserEnd)/2} 270 ${riserEnd} 130" fill="none" stroke="#4ade80" stroke-width="5"/>
+      <rect x="60" y="365" width="${Math.round(140 * sc.zoom)}" height="6" fill="#38bdf8"/>
+      <text x="60" y="356" fill="#cbd5e1" font-size="11" font-weight="bold">${sc.barText}</text>
       <rect x="780" y="355" width="385" height="55" fill="#0b1e36" stroke="#38bdf8"/>
       <text x="795" y="378" fill="#fff" font-size="11" font-weight="bold">TITLE BLOCK: COMPOSITE PIPELINE + DEEPWATER RISER GAD</text>
-      <text x="795" y="396" fill="#94a3b8" font-size="10">GoI Copyright SW-2026024357 | Prepared: L2G | Scale: ${sc}</text>
+      <text x="795" y="396" fill="#94a3b8" font-size="10">GoI Copyright SW-2026024357 | Prepared: L2G | Scale: ${sc.label}</text>
     </svg>`;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-    a.download = `L2G_Composite_Pipeline_Riser_GAD_${sc.replace(':','-')}.svg`;
+    a.download = `L2G_Composite_Pipeline_Riser_GAD_${sc.label.replace(':','-')}.svg`;
     a.click();
   });
 
