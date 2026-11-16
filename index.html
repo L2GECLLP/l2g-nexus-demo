@@ -1177,18 +1177,57 @@
     r.onload = ev => {
       const cfg = JSON.parse(ev.target.result);
       const lp = cfg.linepipe_properties || {};
+      const rs = cfg.riser_system_properties || {};
       const pm = cfg.process_and_metocean || {};
-      if (cfg.project_metadata?.composite_architecture) document.getElementById('inCompositeArch').value = cfg.project_metadata.composite_architecture;
-      if (cfg.riser_system_properties?.riser_wt_mm) document.getElementById('inRiserWT').value = cfg.riser_system_properties.riser_wt_mm.toFixed(1);   
+
+      if (cfg.project_metadata?.composite_architecture) {
+        document.getElementById('inCompositeArch').value = cfg.project_metadata.composite_architecture;
+      }
       if (lp.nominal_od_mm) document.getElementById('inOD').value = lp.nominal_od_mm.toFixed(1);
+      if (lp.nominal_wt_mm) document.getElementById('inWT').value = lp.nominal_wt_mm.toFixed(1);
+      if (rs.riser_wt_mm) document.getElementById('inRiserWT').value = rs.riser_wt_mm.toFixed(1);
       if (lp.smys_mpa) document.getElementById('inGrade').value = String(lp.smys_mpa);
       if (lp.fabrication_factor_alpha_fab) document.getElementById('inAlphaFab').value = lp.fabrication_factor_alpha_fab.toFixed(2);
       if (lp.corrosion_allowance_mm) document.getElementById('inCorr').value = lp.corrosion_allowance_mm;
       if (pm.design_pressure_bar) document.getElementById('inPd').value = pm.design_pressure_bar;
       if (pm.design_temperature_c) document.getElementById('inTd').value = pm.design_temperature_c;
       if (pm.product_density_kgm3) document.getElementById('inRhoP').value = pm.product_density_kgm3;
-      if (lp.concrete_weight_coating?.zone_kp_45_to_60_mm) document.getElementById('inCwc').value = lp.concrete_weight_coating.zone_kp_45_to_60_mm;
-      document.getElementById('statusMsg').innerHTML = `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${cfg.project_metadata?.corridor_id || f.name}</span> — Composite Pipeline &amp; Riser Synchronized.`;
+      if (pm.metocean_100yr_cyclonic?.significant_wave_height_hs_m) {
+        document.getElementById('inHs').value = pm.metocean_100yr_cyclonic.significant_wave_height_hs_m;
+      }
+      if (lp.concrete_weight_coating?.zone_kp_45_to_60_mm !== undefined) {
+        document.getElementById('inCwc').value = lp.concrete_weight_coating.zone_kp_45_to_60_mm;
+      }
+
+      // Optional custom corridor_profile array ingestion (supports both full composite arrays and seabed-only arrays)
+      if (Array.isArray(cfg.corridor_profile) && cfg.corridor_profile.length > 0) {
+        const parsed = cfg.corridor_profile.map(pt => ({
+          kp: Number(pt.kp) || 0,
+          zone: pt.zone || "Subsea Pipeline",
+          e: Number(pt.e) || 0,
+          n: Number(pt.n) || 0,
+          wd: Number(pt.wd) || 0,
+          feat: pt.feat || "",
+          soil: pt.soil || "Silty Carbonate Sand",
+          cwc: Number(pt.cwc) || 0
+        }));
+
+        const hasRiser = parsed.some(pt => pt.zone === "Deepwater Riser");
+        if (hasRiser) {
+          corridor = parsed;
+        } else {
+          const lastPt = parsed[parsed.length - 1];
+          corridor = parsed.concat([
+            { kp: lastPt.kp, zone: "PLEM / Tie-In", e: lastPt.e, n: lastPt.n, wd: lastPt.wd, feat: "Subsea PLEM + Z-Spool + SSIV", soil: "Suction Pile", cwc: 60 },
+            { kp: +(lastPt.kp + 0.08).toFixed(2), zone: "Deepwater Riser", e: lastPt.e + 60, n: lastPt.n + 50, wd: Math.max(lastPt.wd - 2, 0), feat: "Riser Touchdown Zone (TDZ)", soil: "Dynamic Seabed Contact", cwc: 0 },
+            { kp: +(lastPt.kp + 0.16).toFixed(2), zone: "Deepwater Riser", e: lastPt.e + 120, n: lastPt.n + 100, wd: +(lastPt.wd * 0.5).toFixed(1), feat: "Mid-Water Catenary / Buoyancy Arch", soil: "Water Column", cwc: 0 },
+            { kp: +(lastPt.kp + 0.24).toFixed(2), zone: "Deepwater Riser", e: lastPt.e + 180, n: lastPt.n + 150, wd: 0.0, feat: "Splash Zone & Topside Hang-Off (+25m)", soil: "FPSO / Platform", cwc: 0 }
+          ]);
+        }
+      }
+
+      document.getElementById('statusMsg').innerHTML =
+        `<span style="color:#4ade80;font-weight:700;">✓ Loaded ${cfg.project_metadata?.corridor_id || f.name}</span> (${corridor.length} Stations: Subsea Pipeline + Coupled Riser) — Synchronized.`;
       runAllSolvers();
     };
     r.readAsText(f);
