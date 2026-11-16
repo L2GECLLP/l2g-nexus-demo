@@ -914,6 +914,97 @@ DATASET SCHEMA PROVENANCE: PODS 7.0 / CFIHOS RELATIONAL CORE (ZERO TRANSCRIPTION
     drawRouteCanvas();
   };
 </script>
+<!-- NexusPipeline Client-Side CSV & JSON Ingestion Module -->
+<div id="nexus-ingest-bar" style="position:fixed;bottom:16px;right:16px;z-index:9999;background:#0b2545;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,0.35);font-family:system-ui,-apple-system,sans-serif;border:1.5px solid #0284c7;max-width:420px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <strong style="font-size:13px;letter-spacing:0.4px;color:#38bdf8;">NEXUS DATA INGESTION (PODS / CFIHOS)</strong>
+    <button onclick="document.getElementById('nexus-ingest-body').style.display = document.getElementById('nexus-ingest-body').style.display === 'none' ? 'block' : 'none'" style="background:transparent;border:1px solid #38bdf8;color:#38bdf8;border-radius:4px;padding:1px 7px;cursor:pointer;font-size:11px;">Toggle</button>
+  </div>
+  <div id="nexus-ingest-body">
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+      <label style="background:#0284c7;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+        Upload Corridor CSV
+        <input type="file" id="csvUploadInput" accept=".csv" style="display:none;" />
+      </label>
+      <label style="background:#0f766e;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+        Upload Design JSON
+        <input type="file" id="jsonUploadInput" accept=".json" style="display:none;" />
+      </label>
+    </div>
+    <div id="nexus-ingest-status" style="font-size:11px;color:#cbd5e1;line-height:1.4;">
+      Ready for <code>corridor_bathymetry.csv</code> &amp; <code>nexus_design_basis.json</code>
+    </div>
+    <div id="nexus-corridor-preview" style="display:none;margin-top:8px;max-height:190px;overflow:auto;background:#071930;padding:8px;border-radius:6px;font-size:11px;border:1px solid #1e3a5f;"></div>
+  </div>
+</div>
 
+<script>
+(function() {
+  const statusEl = document.getElementById('nexus-ingest-status');
+  const previewEl = document.getElementById('nexus-corridor-preview');
+
+  function syncInputs(map) {
+    Object.entries(map).forEach(([key, val]) => {
+      const el = document.querySelector(`[name*="${key}" i], [id*="${key}" i]`);
+      if (el && ('value' in el)) {
+        el.value = val;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+
+  document.getElementById('csvUploadInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const lines = evt.target.result.trim().split(/\r?\n/);
+      const headers = lines[0].split(',');
+      const rows = lines.slice(1).map(r => r.split(','));
+      const spans = rows.filter(r => (r[4] || '').toLowerCase().includes('span'));
+      statusEl.innerHTML = `<span style="color:#4ade80;font-weight:700;">Loaded ${file.name}</span> (${rows.length} waypoints, ${spans.length} VIV free-span triggers detected)`;
+      previewEl.style.display = 'block';
+      previewEl.innerHTML = `<table style="width:100%;border-collapse:collapse;color:#e2e8f0;">
+        <thead><tr style="border-bottom:1px solid #334155;text-align:left;">
+          <th style="padding:3px;">KP</th><th style="padding:3px;">WD (m)</th><th style="padding:3px;">Soil / Feature</th>
+        </tr></thead>
+        <tbody>${rows.map(r => `<tr style="border-bottom:1px solid #0f294a;${(r[4]||'').toLowerCase().includes('span') ? 'background:#451a03;color:#fdba74;' : ''}">
+          <td style="padding:3px;">${r[0]}</td><td style="padding:3px;">${r[3]}</td><td style="padding:3px;">${r[4]} (${r[5]})</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+      window.nexusCorridorData = { headers, rows };
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('jsonUploadInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const cfg = JSON.parse(evt.target.result);
+        const lp = cfg.linepipe_properties || {};
+        const pm = cfg.process_and_metocean || {};
+        syncInputs({
+          od: lp.nominal_od_mm,
+          diameter: lp.nominal_od_mm,
+          smys: lp.smys_mpa,
+          pressure: pm.design_pressure_bar,
+          temp: pm.design_temperature_c,
+          wt: (lp.wall_thickness_candidates_mm || [])[1] || 25.4,
+          thickness: (lp.wall_thickness_candidates_mm || [])[1] || 25.4
+        });
+        statusEl.innerHTML = `<span style="color:#4ade80;font-weight:700;">Loaded ${cfg.project_metadata?.corridor_id || file.name}</span> — OD: ${lp.nominal_od_mm} mm | ${lp.material_grade} | Pd: ${pm.design_pressure_bar} bar | Td: ${pm.design_temperature_c} °C`;
+        window.nexusDesignBasis = cfg;
+      } catch (err) {
+        statusEl.innerHTML = `<span style="color:#f87171;">Invalid JSON format: ${err.message}</span>`;
+      }
+    };
+    reader.readAsText(file);
+  });
+})();
+</script>
 </body>
 </html>
